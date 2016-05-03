@@ -25,11 +25,78 @@
 	define	WIDTH		24
 	define  ATTR_TRANS	0xff
 
+; Defines for page indexes of main and shadow screen, respectively
+
+	define MAIN_SCREEN_BYTES 	0x40
+	define MAIN_SCREEN_ATTR		0x58
+
+	define SHADOW_SCREEN_BYTES	0x65
+	define SHADOW_SCREEN_ATTR		0x7D
+
+
+;
+;	Initialises the printing routines
+;
+init_print
+
+	xor a
+	ld (v_column), a
+	ld (v_row), a
+	ld (v_pr_ops), a
+	ld a, 8
+	ld (v_width), a
+	dec a
+	ld (v_attr), a
+	ld hl, fixed_charset
+	ld (v_charset), hl
+
+;	Fall through to initialising the main/shadow screen setup
+
+init_print_screen
+
+	ld hl, v_screen_bitmap
+	ld a, MAIN_SCREEN_BYTES
+	ld (hl), a
+	inc hl
+	ld a, MAIN_SCREEN_ATTR
+	ld (hl), a
+	ret
+
+;
+;	Set the main screen as the target drawing screen
+;
+set_print_main_screen
+
+	jr init_print_screen
+
+;
+;	Set the shadow screen as the target drawing screen
+;
+set_print_shadow_screen
+
+	ld hl, v_screen_bitmap
+	ld a, SHADOW_SCREEN_BYTES
+	ld (hl), a
+	inc hl
+	ld a, SHADOW_SCREEN_ATTR
+	ld (hl), a
+	ret
+
+;
+;	Copies the shadow screen to main screen
+;
+copy_shadow_screen
+
+	ld hl, SHADOW_SCREEN_BYTES * 0x100
+	ld de, MAIN_SCREEN_BYTES * 0x100
+	ld bc, 0x1b00
+	ldir
+	ret
+
 ;
 ;	Prints a string to the screen.
 ;	Inputs: HL=location of string to be printed
 ;
-
 
 print
 
@@ -395,10 +462,13 @@ putchar
 	ex de, hl
 
 ;	Now find the address in the frame buffer to be written.
+;	Take main/shadow screen into account
 
+	ld a, (v_screen_bitmap)
+	ld b, a
 	ld a, (v_row)
 	and 0x18
-	or 0x40
+	add b
 	ld h, a
 	ld a, (v_row)
 	and 0x7
@@ -567,6 +637,8 @@ putchar
 
 ;	Now calculate attribute address
 
+	ld a, (v_screen_attr)
+	ld b, a
 	ld a, (v_attr)
 	cp ATTR_TRANS
 	jr z, .putchar.end
@@ -576,7 +648,7 @@ putchar
 	srl a
 	srl a
 	and 3
-	or 0x58
+	add b
 	ld h, a
 	ld a, (v_row)
 	sla a
@@ -661,9 +733,11 @@ putchar_8
 
 ;	Now find the address in the frame buffer to be written.
 
+	ld a, (v_screen_bitmap)
+	ld b, a
 	ld a, (v_row)
 	and 0x18
-	or 0x40
+	add b
 	ld h, a
 	ld a, (v_row)
 	and 0x7
@@ -702,12 +776,14 @@ putchar_8
 
 ;	Now calculate attribute address
 
+	ld a, (v_screen_attr)
+	ld b, a
 	ld a, (v_row)
 	srl a
 	srl a
 	srl a
 	and 3
-	or 0x58
+	add b
 	ld h, a
 	ld a, (v_row)
 	sla a
@@ -731,8 +807,6 @@ putchar_8
 	pop bc
 	pop hl
 	ret
-
-
 
 ;
 ;	Sets the current print position.
@@ -855,16 +929,27 @@ cls
 
 ;	Clear the bitmap locations
 
-	ld a, 0
-	ld hl, 16384
+	ld a, (v_screen_bitmap)
+	ld h, a
+	xor a
+	ld l, a
 	ld (hl), a
-	ld de, 16385
+	push hl
+	pop de
+	inc de
 	ld bc, 6144
 	ldir
 
 ;	Clear the attribute area. Use the attribute
 ;	value in v_attr for this.
 
+	ld a, (v_screen_attr)
+	ld h, a
+	xor a
+	ld l, a
+	push hl
+	pop de
+	inc de
 	ld a, (v_attr)
 	ld (hl), a
 	ld bc, 768
