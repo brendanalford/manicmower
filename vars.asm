@@ -10,10 +10,9 @@
 	define	FLOWERS					5
 
 
-	;	Interrupt vector table goes to E200-E300 - avoid!
-
 ; Workspace areas
 
+pixel_row_buffer		equ #f800; 200
 level_buffer				equ #fa00; 300
 
 
@@ -25,6 +24,7 @@ v_attr							equ #fe02; 1
 v_pr_ops						equ #fe03; 1	bit 0: bold on/off, bit 1: inverse on/off
 v_width							equ #fe04; 1
 v_charset						equ #fe07; 2	Base location of character set - must be page aligned
+v_fadeattr					equ #fe08; 3	Temporary storage for attribute being faded
 v_screen_bitmap			equ #fe09; 1  Page index of target drawing bitmap in ram
 v_screen_attr				equ #fe0a; 1	Page index of target drawing attributes in ram
 
@@ -48,6 +48,6 @@ v_dog_index					equ #fe46; 1  Index of dog currently moving, FF if not
 v_dog_x_moving			equ #fe47; 1	Dog X coordinate (pixel) while moving
 v_dog_y_moving			equ #fe48; 1	Dog Y coordinate (pixel) while moving
 v_damage						equ #fe49; 1	Damage level
-v_fuel							equ #fe50; 1	Fuel level 
+v_fuel							equ #fe50; 1	Fuel level
 
 ; ISR at 0xFEFE - avoid

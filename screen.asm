@@ -1,4 +1,6 @@
-
+;
+;	screen.asm
+;
 
 ;	Routines for printing proportional strings to the screen.
 ;	Control codes AT, PAPER, INK, BRIGHT
@@ -50,6 +52,49 @@ init_print
 	ld hl, fixed_charset
 	ld (v_charset), hl
 
+;	Initialise the pixel row lookup buffer
+
+	xor a
+	ld b, a
+	ld c, a
+	ld ix, pixel_row_buffer
+
+pixel_row_buffer_init
+
+	ld a, c
+	and 0x7
+	ld h, a
+	ld a, c
+	rra
+	rra
+	rra
+	and 0x18
+	or h
+	or 0x40
+	ld h, a
+
+	ld a, b
+	rra
+	rra
+	rra
+	and 0x1f
+	ld l, a
+	ld a, c
+	rla
+	rla
+	and 0xe0
+	or l
+	ld l, a
+
+	ld (ix), hl
+	inc ix
+	inc ix
+	inc c
+	ld a, c
+	cp 192
+	jr nz, pixel_row_buffer_init
+
+
 ;	Fall through to initialising the main/shadow screen setup
 
 init_print_screen
@@ -60,6 +105,29 @@ init_print_screen
 	inc hl
 	ld a, MAIN_SCREEN_ATTR
 	ld (hl), a
+	ret
+
+;
+;	Sets the fixed character set (with game graphics)
+; as the default for printing
+;
+set_fixed_font
+
+	ld hl, proportional_charset
+	ld (v_charset), hl
+	ld a, 8
+	ld (v_width), a
+	ret
+
+;
+;	Sets the proportional font as the default for printing
+;
+set_proportional_font
+
+	ld hl, proportional_charset
+	ld (v_charset), hl
+	xor a
+	ld (v_width), a
 	ret
 
 ;
@@ -92,6 +160,127 @@ copy_shadow_screen
 	ld bc, 0x1b00
 	ldir
 	ret
+
+copy_shadow_screen_pixels
+
+	ld hl, SHADOW_SCREEN_BYTES * 0x100
+	ld de, MAIN_SCREEN_BYTES * 0x100
+	ld bc, 0x1800
+	ldir
+	ret
+
+;
+;	Fades in attributes from shadow screen
+;
+
+fade_in_shadow_screen_attrs
+
+	ld hl, SHADOW_SCREEN_ATTR * 0x100
+	ld de, MAIN_SCREEN_ATTR * 0x100
+	ld bc, 0x300
+
+;	Check if the fade is complete
+
+fade_in_attrs_check
+
+	ld a, (de)
+	cp (hl)
+	jr nz, fade_in_attrs
+
+	inc hl
+	inc de
+	dec bc
+	ld a, b
+	or c
+	jr nz, fade_in_attrs_check
+
+; All attrs in main screen equal to shadow, we're done
+
+	ret
+
+fade_in_attrs
+
+	ld hl, SHADOW_SCREEN_ATTR * 0x100
+	ld de, MAIN_SCREEN_ATTR * 0x100
+	ld bc, 0x300
+
+fade_in_attrs_loop
+
+	push bc
+	xor a
+	ld c, a
+
+; Consider ink first.
+
+	ld a, (de)
+	and 0x7
+	ld b, a
+	ld a, (hl)
+	and 0x7
+	cp b
+	jr z, fade_in_attrs_paper
+
+	ld a, b
+	inc a
+	and 0x7
+
+fade_in_attrs_paper
+
+	or c
+	ld c, a
+
+	; Now consider paper colour
+
+	ld a, (de)
+	sra a
+	sra a
+	sra a
+	and 0x07
+	ld b, a
+	ld a, (hl)
+	sra a
+	sra a
+	sra a
+	and 0x07
+	cp b
+	jr z, fade_in_bright_flash
+
+	ld a, b
+	inc a
+
+fade_in_bright_flash
+
+	sla a
+	sla a
+	sla a
+	and 0x38
+	or c
+	ld c, a
+
+;	Set bright/flash attributes explicitly.
+
+	ld a, (hl)
+	and 0xc0
+	or c
+
+;	Store the new attribute and loop
+
+	ex de, hl
+	ld (hl), a
+	ex de, hl
+
+	pop bc
+	inc hl
+	inc de
+	dec bc
+	ld a, b
+	or c
+	jr nz, fade_in_attrs_loop
+
+;	Wait for vsync, and loop until everything's faded in
+
+	halt
+	jr fade_in_shadow_screen_attrs
 
 ;
 ;	Prints a string to the screen.
@@ -802,6 +991,212 @@ putchar_8
 	ld a, (v_attr)
 	ld (hl), a
 
+	pop ix
+	pop de
+	pop bc
+	pop hl
+	ret
+
+
+;
+;	Puts a single character on screen at the location in the
+;	v_col and v_row variables, with pixel accuracy. attributes
+; are ignored and treated as transparent.
+; Always draws to main screen - shadow screen not supported.
+;	Inputs: A=character to print.
+;
+
+putchar_pixel
+
+	push hl
+	push bc
+	push de
+	push ix
+
+; Get the charset location
+
+	ld hl, (v_charset)
+	ld bc, hl
+
+;	Find the address of the character in the bitmap table
+
+	sub 32      ; space = offset 0
+	ld hl, 0
+	ld l, a
+
+;	Multiply by 8 to get the byte offset
+
+	add hl, hl
+	add hl, hl
+	add hl, hl
+
+;	Add the charset offset
+
+	add hl, bc
+
+;	Store result in de for later use
+
+	ex de, hl
+
+;	DE contains the address of the char bitmap
+;	Calculate mask for printing partial characters
+
+	push de
+	ld a, (v_column)
+	and 0x7
+	ld ixl, a
+
+;	Offset goes in IXL for the duration
+
+	ld hl, mask_bits
+	ld e, a
+	xor a
+	ld d, a
+	add hl, de
+	ld a, (hl)
+
+;	Mask value goes in IXH
+
+	ld ixh, a
+	pop de
+
+	ld b, 8
+
+.putchar_pixel.loop
+
+; Calculate HL address of row/column
+
+	push de
+	push ix
+
+	ld ix, pixel_row_buffer
+	xor a
+	ld d, a
+	ld a, (v_row)
+	ld e, a
+	sla e
+	bit 7, a
+	jr z, .putchar_pixel.loop_2
+
+	set 0, d
+
+.putchar_pixel.loop_2
+
+	and a				; Clear carry flag
+	add ix, de
+	ld hl, (ix)
+
+; Now row position is in HL, add in column
+
+	ld a, (v_column)
+	srl a
+	srl a
+	srl a
+	or l
+	ld l, a
+
+	pop ix
+	pop de
+
+;	Move character bitmap into the frame buffer
+
+	ld a, (de)
+	push de
+
+;	Store bitmap row in d, and mask in e for the duration
+
+	ld d, a
+	ld e, ixh
+
+	push bc
+
+;	Apply mask to first byte
+
+	ld a, e
+	ld b, (hl)
+	and b
+	ld (hl), a
+
+	ld a, ixl
+	cp 0
+	jr z, .putchar_pixel.norot
+	ld b, a
+	ld a, d
+
+.putchar_pixel.rot1
+
+	srl a
+	djnz .putchar_pixel.rot1
+	jr .putchar_pixel.byte1
+
+.putchar_pixel.norot
+
+	ld a, d
+
+.putchar_pixel.byte1
+
+	ld b, (hl)
+	or b
+	ld (hl), a
+	pop bc
+
+;	Check if we need to do second byte
+
+	ld a, ixl
+	cp 0
+	jr z, .putchar_pixel.nextbmpline
+	inc hl
+
+	push bc
+
+;	Apply mask to second byte
+
+	ld a, e
+	cpl
+	ld b, (hl)
+	and b
+	ld (hl), a
+
+	ld a, ixl
+	ld b, a
+	ld a, 8
+	sub b
+	ld b, a
+
+	ld a, d
+
+.putchar_pixel.rot2
+
+	sla a
+	djnz .putchar_pixel.rot2
+
+	ld b, (hl)
+	or b
+	ld (hl), a
+
+	pop bc
+	dec hl
+
+.putchar_pixel.nextbmpline
+
+	pop de
+	inc de            ; next line of bitmap
+
+.putchar_pixel.next
+
+	ld a, (v_row)
+	inc a
+	ld (v_row), a
+
+	djnz .putchar_pixel.loop
+
+	ld b, 8
+	sub b
+	ld (v_row), a
+
+;	Done, restore registers and return
+
+.putchar_pixel.end
 	pop ix
 	pop de
 	pop bc
