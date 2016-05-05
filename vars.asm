@@ -43,11 +43,11 @@ v_mowery						equ #fe41; 1	Mower Y coordinate
 v_mower_x_moving		equ #fe42; 1	Mower X coordinate (pixel) while moving
 v_mower_y_moving		equ #fe43; 1	Mower Y coordinate (pixel) while moving
 v_mower_move_pixels	equ #fe44; 1	Pixels left to move before new input
-v_mower_direction		equ #fe45; 1	Mower direction bitmap (0000UDLR)
-v_dog_index					equ #fe46; 1  Index of dog currently moving, FF if not
-v_dog_x_moving			equ #fe47; 1	Dog X coordinate (pixel) while moving
-v_dog_y_moving			equ #fe48; 1	Dog Y coordinate (pixel) while moving
-v_damage						equ #fe49; 1	Damage level
-v_fuel							equ #fe50; 1	Fuel level
-
-; ISR at 0xFEFE - avoid
+v_mower_x_dir				equ #fe45; 1	Mower x direction, 1 - down, 255 - up
+v_mower_y_dir				equ #fe46; 1	Mower y direction, 1 - down, 255 - up
+v_mower_graphic			equ #fe47; 1	Current mower graphic: a, b, c, d
+v_dog_index					equ #fe48; 1  Index of dog currently moving, FF if not
+v_dog_x_moving			equ #fe49; 1	Dog X coordinate (pixel) while moving
+v_dog_y_moving			equ #fe50; 1	Dog Y coordinate (pixel) while moving
+v_damage						equ #fe51; 1	Damage level
+v_fuel							equ #fe52; 1	Fuel level

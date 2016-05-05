@@ -372,7 +372,8 @@ prepare_dog_loop
   xor a
   ld (v_mower_x_moving), a
   ld (v_mower_y_moving), a
-  ld (v_mower_direction), a
+  ld (v_mower_x_dir), a
+  ld (v_mower_y_dir), a
 
 ; Set dog movement variables
 
@@ -387,6 +388,8 @@ prepare_dog_loop
   ld (v_damage), a
   ld a, 80
   ld (v_fuel), a
+  ld a, 'a'
+  ld (v_mower_graphic), a
 
   ret
 

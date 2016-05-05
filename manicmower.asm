@@ -5,6 +5,7 @@
 ;
 
   org 0x8000
+  include "vars.asm"
 
 init
 
@@ -48,7 +49,6 @@ init
 
   call prepare_level
   call display_level
-  call get_key
 
   call set_print_main_screen
   xor a
@@ -58,63 +58,14 @@ init
   call copy_shadow_screen_pixels
   call fade_in_shadow_screen_attrs
 
-  ld a, 40
-  ld (v_mowerx), a
-  ld (v_mowery), a
-
-main_loop
-
-  ld a, 1
-  out (0xfe), a
-  ld a, (v_mowerx)
-  ld (v_column), a
-  ld a, (v_mowery)
-  ld (v_row), a
-
-  ld a, ' '
-  call putchar_pixel
-  ld a, (v_mowerx)
-  inc a
-  ld (v_mowerx), a
-  ld (v_column), a
-  ld a, 'd'
-  call putchar_pixel
-
-; Simulate fuel loss
-
-  ld a, (v_mowerx)
-  and 0x0f
-  cp 0
-  jr nz, main_next
-
-  ld b, 175
-  ld a, (v_fuel)
-  add b
-  ld (v_column), a
-  ld a, 8
-  ld (v_row), a
-  ld a, ' '
-  call putchar_pixel
-  ld a, (v_fuel)
-  dec a
-  ld (v_fuel), a
-
-main_next
-
   xor a
-  out (0xfe), a
+  ld (v_mower_x_dir), a
+  ld (v_mower_y_dir), a
 
-  halt
-
-  ld a, (v_mowerx)
-  cp 240
-  jr nz, main_loop
-
-  im 1
+  call main_loop
   ret
 
-
-  include "vars.asm"
+  include "game.asm"
   include "screen.asm"
   include "input.asm"
   include "levels.asm"
