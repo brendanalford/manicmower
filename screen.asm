@@ -25,7 +25,6 @@
 	define  TEXTNORM	22
 	define	AT		23
 	define	WIDTH		24
-	define  ATTR_TRANS	0xff
 
 ; Defines for page indexes of main and shadow screen, respectively
 
@@ -113,7 +112,7 @@ init_print_screen
 ;
 set_fixed_font
 
-	ld hl, proportional_charset
+	ld hl, fixed_charset
 	ld (v_charset), hl
 	ld a, 8
 	ld (v_width), a
@@ -157,7 +156,7 @@ copy_shadow_screen
 
 	ld hl, SHADOW_SCREEN_BYTES * 0x100
 	ld de, MAIN_SCREEN_BYTES * 0x100
-	ld bc, 0x1b00
+	ld bc, 0x1aff
 	ldir
 	ret
 
@@ -165,7 +164,7 @@ copy_shadow_screen_pixels
 
 	ld hl, SHADOW_SCREEN_BYTES * 0x100
 	ld de, MAIN_SCREEN_BYTES * 0x100
-	ld bc, 0x1800
+	ld bc, 0x17ff
 	ldir
 	ret
 
@@ -987,9 +986,14 @@ putchar_8
 
 ;	Write the current colour values in the v_attr
 ;	sysvar to the just printed character
+;	Ignore if transparent attributes are selected
 
 	ld a, (v_attr)
+	cp ATTR_TRANS
+	jr z, .putchar_8.end
 	ld (hl), a
+
+.putchar_8.end
 
 	pop ix
 	pop de
@@ -1332,7 +1336,7 @@ cls
 	push hl
 	pop de
 	inc de
-	ld bc, 6144
+	ld bc, 0x1aff
 	ldir
 
 ;	Clear the attribute area. Use the attribute
@@ -1347,7 +1351,7 @@ cls
 	inc de
 	ld a, (v_attr)
 	ld (hl), a
-	ld bc, 768
+	ld bc, 0x2ff
 	ldir
 	pop af
 	pop bc

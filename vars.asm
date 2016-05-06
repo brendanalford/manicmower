@@ -10,6 +10,18 @@
 	define	FLOWERS					5
 
 
+	define 	LEVEL_BUFFER_LEN	576
+	define	FUEL_FRAMES				30
+	define	TIME_FRAMES				120
+
+	define 	ATTR_TRANS				0xff
+
+	define 	STATUS_HIT_WALL			0x1
+	define 	STATUS_HIT_GNOME		0x2
+	define	STATUS_HIT_FLOWERS	0x3
+	define	STATUS_HIT_DOG			0x4
+	define  STATUS_GAME_OVER		0xf
+
 ; Workspace areas
 
 pixel_row_buffer		equ #f800; 200
@@ -36,7 +48,8 @@ v_keybuffer					equ #fe10; 8  Keyboard scanning map
 
 v_level							equ #fe1f
 v_score							equ #fe20
-v_hiscore						equ #fe28
+v_fuel_frame				equ #fe28; 1 - Frames left until fuel is decremented
+v_time_frame				equ #fe29; 1 - Frames left until time is decremented
 v_dogbuffer					equ #fe30; 16 - space for 8 indivdial dogs. Should be plenty.
 v_mowerx						equ #fe40; 1	Mower X coordinate
 v_mowery						equ #fe41; 1	Mower Y coordinate
@@ -51,3 +64,10 @@ v_dog_x_moving			equ #fe49; 1	Dog X coordinate (pixel) while moving
 v_dog_y_moving			equ #fe50; 1	Dog Y coordinate (pixel) while moving
 v_damage						equ #fe51; 1	Damage level
 v_fuel							equ #fe52; 1	Fuel level
+v_hit_solid					equ #fe53; 1	Hit object - ignore keystrokes until key released
+v_slow_movement			equ #fe54; 1	0 - normal movement, 1 - slow movement
+v_pending_score			equ #fe55; 1	Pending score x 10
+v_grass_left				equ #fe56; 1	Grass left to mow? 1 - yes, 0 - no
+v_time							equ #fe57; 2	Time left
+v_status_msg				equ #fe59; 1	Status message code, 0 - no message 1 - hit wall, 2 - hit gnome, 3 - hit flowers, 4 - hit dog
+v_status_delay			equ #fe5a; 1	Delay in frames before erasing status message

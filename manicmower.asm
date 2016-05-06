@@ -62,7 +62,9 @@ init
   ld (v_mower_x_dir), a
   ld (v_mower_y_dir), a
 
+  call set_print_main_screen
   call main_loop
+
   ret
 
   include "game.asm"
@@ -83,29 +85,8 @@ init_score
   djnz init_score
   xor a
   ld (hl), a
-
-;
-; Called to display score and high score values.
-;
-
-display_score
-
-  xor a
-  ld (v_row),a
-  ld a, 6 * 8
-  ld (v_column), a
-  ld a, %01000101
-  ld (v_attr), a
-  ld a, 8
-  ld (v_width), a
-  ld hl, v_score
-  call print
-  ld a, 18 * 8
-  ld (v_column), a
-  ld hl, high_score_table
-  call print
+  ld (v_pending_score), a
   ret
-
 
 ;
 ; Game text strings
@@ -123,9 +104,32 @@ str_wait
 
 str_status
 
-  defb AT, 0, 0, PAPER, 0, BRIGHT, 1, INK, 4, WIDTH, 8,  "SCORE        HIGH        TIME ", INK, 5, "99DAMAGE           FUEL "
-  defb INK, 2, 'kkk', INK, 4, BRIGHT, 0, 'kkkkkkk', 0
+  defb AT, 0, 0, PAPER, 0, BRIGHT, 1, INK, 4, WIDTH, 8,  "SCORE        HIGH        TIME ", INK, 5, "99DAMAGE ", INK, 4, "    ", INK, 6, "   ", INK, 2, "  ", INK, 5, " FUEL "
+  defb INK, 2, 'kkk', INK, 4, 'kkkkkkk', 0
 
+str_fuel_bar
+
+  defb AT, 1, 22 * 8, BRIGHT, 1, INK, 2, "kkk", INK, 4, "kkkkkkk", 0
+
+str_hit_wall
+
+  defb AT, 22, 20, INK, 6, "Your mower needs 'mower' repairs...", 0
+
+str_hit_gnome
+
+  defb AT, 22, 46, INK, 5, "You have damaged a gnome!", 0
+
+str_hit_flowers
+
+  defb AT, 22, 8, INK, 7, "I suppose it's better than pruning them...", 0
+
+str_game_over_damage
+
+  defb AT, 22, 44, INK, 7, "Your mower has gone into", AT, 23, 60, "'self destruct' mode!", 0
+
+str_game_over_fuel
+
+  defb AT, 22, 60, INK, 7, "You've run out of fuel!", 0
 
 ; Game playfield is 32 x 18 (576 bytes)
 

@@ -14,7 +14,7 @@ display_level
   ld (v_row), a
 
   ld ix, level_buffer
-  ld bc, 576
+  ld bc, LEVEL_BUFFER_LEN
 
 display_level_loop
 
@@ -374,14 +374,41 @@ prepare_dog_loop
   ld (v_mower_y_moving), a
   ld (v_mower_x_dir), a
   ld (v_mower_y_dir), a
+  ld (v_hit_solid), a
+  ld (v_slow_movement), a
 
 ; Set dog movement variables
 
   ld a, 0xff
   ld (v_dog_index), a
-  ld a, 0
+  xor a
   ld (v_dog_x_moving), a
   ld (v_dog_y_moving), a
+
+; No grass at initial mower or dog location(s)
+
+  ld a, (v_mowerx)
+  ld l, a
+  ld a, (v_mowery)
+  ld h, a
+
+  call calc_xy_to_hl
+  ld (hl), 0
+  ld ix, v_dogbuffer
+
+prepare_dog_patch
+
+  ld hl, (ix)
+  ld a, h
+  or l
+  jr z, prepare_misc
+  call calc_xy_to_hl
+  ld (hl), 0
+  inc ix
+  inc ix
+  jr prepare_dog_patch
+
+prepare_misc
 
 ; Set damage / fuel levels
 
@@ -390,6 +417,22 @@ prepare_dog_loop
   ld (v_fuel), a
   ld a, 'a'
   ld (v_mower_graphic), a
+
+  ld a, '9'
+  ld (v_time), a
+  ld (v_time + 1), a
+
+  ld a, FUEL_FRAMES
+  ld (v_fuel_frame), a
+  ld a, TIME_FRAMES
+  ld (v_time_frame), a
+
+  xor a
+  ld (v_status_msg), a
+  ld (v_status_delay), a
+
+  call survey_grass
+  call display_score
 
   ret
 
