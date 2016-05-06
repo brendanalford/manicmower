@@ -13,38 +13,39 @@ init
   call init_print
 
   call cls
-  call set_proportional_font
+;  call set_proportional_font
 
-  ld hl, str_wait
-  call print
+;  ld hl, str_wait
+;  call print
 
-  call set_fixed_font
+;  call set_fixed_font
 
-  ld hl, fixed_charset
-  ld (v_charset), hl
+;  ld hl, fixed_charset
+;  ld (v_charset), hl
 
-  call set_print_shadow_screen
-  call cls
+;  call set_print_shadow_screen
+;  call cls
 
-  ld hl, str_text
-  call print
+;  ld hl, str_text
+;  call print
 
-  ld hl, proportional_charset
-  ld (v_charset), hl
-  xor a
-  ld (v_width), a
+;  ld hl, proportional_charset
+;  ld (v_charset), hl
+;  xor a
+;  ld (v_width), a
 
-  ld hl, str_text
-  call print
+;  ld hl, str_text
+;  call print
 
-  call get_key
-  call copy_shadow_screen
+;  call get_key
+;  call copy_shadow_screen
 
-  call cls
+;  call cls
 
   xor a
   ld (v_level), a
 
+  call set_print_shadow_screen
   call prepare_game
 
   call prepare_level
@@ -63,14 +64,17 @@ init
   ld (v_mower_y_dir), a
 
   call set_print_main_screen
-  call main_loop
 
+  call main_loop
+  call fade_out_attrs
   ret
+
 
   include "game.asm"
   include "screen.asm"
   include "input.asm"
   include "levels.asm"
+  include "misc.asm"
 
 prepare_game
 
@@ -117,7 +121,7 @@ str_hit_wall
 
 str_hit_gnome
 
-  defb AT, 22, 46, INK, 5, "You have damaged a gnome!", 0
+  defb AT, 22, 50, INK, 5, "You have broken a gnome!", 0
 
 str_hit_flowers
 

@@ -99,16 +99,7 @@ mower_pre_move
 
 ; Calculate destination of mower for some Checks
 
-  ld a, (v_mowerx)
-  ld l, a
-  ld a, (v_mower_x_dir)
-  add l
-  ld l, a
-  ld a, (v_mowery)
-  ld h, a
-  ld a, (v_mower_y_dir)
-  add h
-  ld h, a
+  call calculate_mower_destination_coords
   call calc_xy_to_hl
   ld de, level_buffer
   ex de, hl
@@ -128,7 +119,7 @@ check_mowing_grass
   ld a, 1
   call add_to_pending_score
 
-  jr mower_set_movement
+  jp mower_set_movement
 
 check_mower_wall_collision
 
@@ -195,6 +186,27 @@ check_gnome_collision
 
   cp GNOME
   jr nz, mower_set_movement
+  ld a, BROKEN_GNOME
+  ld (hl), a
+
+  di
+  push hl
+  call calculate_mower_destination_coords
+
+  inc h
+  inc h
+  inc h
+  ld a, h
+  ld (v_row), a
+  ld a, l
+  ld (v_column), a
+  ld a, ATTR_TRANS
+  ld (v_attr), a
+  ld a,'i'
+  call putchar_8
+  ld a, 7
+  ld (v_attr), a
+  pop hl
 
   ld a, 1
   ld (v_hit_solid), a
@@ -208,6 +220,7 @@ check_gnome_collision
   xor a
   ld (v_mower_x_dir), a
   ld (v_mower_y_dir), a
+  ei
   jp main_loop_end
 
 
@@ -395,6 +408,12 @@ main_game_over_damage_loop_2
 
   ld a, 7
   ld (v_attr), a
+
+; Delay 2 seconds or so
+
+  ld bc, 100
+  call delay_frames
+
   ret
 
 ;
@@ -435,6 +454,28 @@ main_game_over_fuel_loop_3
   cp 0x08
   jr nz, main_game_over_fuel_loop
 
+  ; Delay 2 seconds or so
+
+  ld bc, 100
+  call delay_frames
+  ret
+
+;
+; Calculates the mower's destination coordinates
+; and places them in HL = YX
+;
+calculate_mower_destination_coords
+
+  ld a, (v_mowerx)
+  ld l, a
+  ld a, (v_mower_x_dir)
+  add l
+  ld l, a
+  ld a, (v_mowery)
+  ld h, a
+  ld a, (v_mower_y_dir)
+  add h
+  ld h, a
   ret
 
 ;

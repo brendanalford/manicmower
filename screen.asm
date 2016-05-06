@@ -282,6 +282,88 @@ fade_in_bright_flash
 	jr fade_in_shadow_screen_attrs
 
 ;
+;	Fades out screen by reducing the ink/paper values until everything's black
+;
+fade_out_attrs
+
+	ld hl, MAIN_SCREEN_ATTR * 0x100
+	ld bc, 0x300
+
+;	Check if the fade is complete
+
+fade_out_attrs_check
+
+	ld a, (hl)
+	cp 0
+	jr nz, fade_out_attrs_main
+
+	inc hl
+
+	dec bc
+	ld a, b
+	or c
+	jr nz, fade_out_attrs_check
+
+; All attrs in main screen are black, we're done
+
+	ret
+
+fade_out_attrs_main
+
+	ld hl, MAIN_SCREEN_ATTR * 0x100
+	ld bc, 0x300
+
+fade_out_attrs_main_1
+
+	ld a, (hl)
+	ld d, a
+
+	and 0x38
+	ld e, a
+
+	ld a, d
+	and 0x7
+	cp 0
+	jr z, fade_out_attrs_paper
+
+	dec a
+
+fade_out_attrs_paper
+
+	or e
+	ld d, a
+
+	and 0x07
+	ld e, a
+	ld a, d
+	and 0x38
+	sra a
+	sra a
+	sra a
+
+	cp 0
+	jr z, fade_out_attrs_done
+
+	dec a
+
+fade_out_attrs_done
+
+	sla a
+	sla a
+	sla a
+
+	or e
+	ld (hl), a
+	inc hl
+	dec bc
+	ld a, b
+	or c
+	jr nz, fade_out_attrs_main_1
+
+
+	jr fade_out_attrs
+
+;
 ;	Prints a string to the screen.
 ;	Inputs: HL=location of string to be printed
 ;

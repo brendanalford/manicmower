@@ -8,6 +8,7 @@
 	define	FUEL						3
 	define 	GNOME 					4
 	define	FLOWERS					5
+	define 	BROKEN_GNOME		6
 
 
 	define 	LEVEL_BUFFER_LEN	576
