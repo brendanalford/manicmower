@@ -430,7 +430,6 @@ prepare_misc
   xor a
   ld (v_status_msg), a
   ld (v_status_delay), a
-
   call survey_grass
   call display_score
 
@@ -442,6 +441,8 @@ prepare_misc
 
 calc_xy_to_hl
 
+  push af
+  push de
   push hl
   pop de
   ld a, d
@@ -460,4 +461,6 @@ calc_xy_to_hl
   ld a, e
   add a, l
   ld l, a
+  pop de
+  pop af
   ret

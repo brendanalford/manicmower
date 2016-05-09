@@ -13,34 +13,38 @@ init
   call init_print
 
   call cls
-;  call set_proportional_font
+;  -Start commented code
 
-;  ld hl, str_wait
-;  call print
+  call set_proportional_font
 
-;  call set_fixed_font
+  ld hl, str_wait
+  call print
 
-;  ld hl, fixed_charset
-;  ld (v_charset), hl
+  call set_fixed_font
 
-;  call set_print_shadow_screen
-;  call cls
+  ld hl, fixed_charset
+  ld (v_charset), hl
 
-;  ld hl, str_text
-;  call print
+  call set_print_shadow_screen
+  call cls
 
-;  ld hl, proportional_charset
-;  ld (v_charset), hl
-;  xor a
-;  ld (v_width), a
+  ld hl, str_text
+  call print
 
-;  ld hl, str_text
-;  call print
+  ld hl, proportional_charset
+  ld (v_charset), hl
+  xor a
+  ld (v_width), a
 
-;  call get_key
-;  call copy_shadow_screen
+  ld hl, str_text
+  call print
 
-;  call cls
+  call get_key
+  call copy_shadow_screen
+
+  call cls
+
+; End commented code
 
   xor a
   ld (v_level), a
@@ -127,6 +131,10 @@ str_hit_flowers
 
   defb AT, 22, 8, INK, 7, "I suppose it's better than pruning them...", 0
 
+str_hit_dog
+
+  defb AT, 22, 24, INK, 2, BRIGHT, 1, "Rover gets a short back and sides!", 0
+
 str_game_over_damage
 
   defb AT, 22, 44, INK, 7, "Your mower has gone into", AT, 23, 60, "'self destruct' mode!", 0
@@ -173,7 +181,7 @@ level_1_data
   defb 17, 3, 11, 6, 7, 8, 20, 8, 21, 8, 21, 11, 21, 13, 0, 0
   defb 8, 3, 24, 5, 16, 6, 22, 7, 15, 9, 12, 10, 8, 11, 20, 13, 14, 13, 18, 15, 0, 0
   defb 7, 2, 22, 2, 23, 7, 12, 9, 0, 0
-  defb 24, 12, 0, 0
+  defb 20, 11, 0, 0
 
 level_2_data
 level_3_data

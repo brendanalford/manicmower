@@ -26,14 +26,14 @@ check_keyboard
   xor a
   ld (v_hit_solid), a
 
-  jr mower_pre_move
+  jp check_dog_collision
 
 check_keyboard_input
 
   ld b, a
   ld a, (v_hit_solid)
   cp 0
-  jr nz, mower_pre_move
+  jr nz, check_dog_collision
 
   ld a, b
   cp ' '
@@ -49,7 +49,7 @@ check_mower_key_up
   ld (v_mower_y_dir), a
   ld a, 'a'
   ld (v_mower_graphic), a
-  jp mower_pre_move
+  jp check_dog_collision
 
 check_mower_key_down
 
@@ -61,7 +61,7 @@ check_mower_key_down
   ld (v_mower_y_dir), a
   ld a, 'b'
   ld (v_mower_graphic), a
-  jp mower_pre_move
+  jp check_dog_collision
 
 check_mower_key_left
 
@@ -73,7 +73,7 @@ check_mower_key_left
   ld (v_mower_x_dir), a
   ld a, 'c'
   ld (v_mower_graphic), a
-  jp mower_pre_move
+  jp check_dog_collision
 
 check_mower_key_right
 
@@ -95,9 +95,63 @@ check_mower_moving
   cp 0
   jp z, main_loop_end
 
-mower_pre_move
+check_dog_collision
+
+; Store mower XY coords in DE
+
+  ld a, (v_mowerx)
+  ld d, a
+  ld a, (v_mowery)
+  ld e, a
+
+  ld hl, v_dogbuffer
+
+check_dog_collision_loop
+
+; Load current dog XY coordinates to BC
+
+  ld a, (hl)
+  ld b, a
+  inc hl
+  ld a, (hl)
+  ld c, a
+  inc hl
+
+; Exit if 0,0 (Last dog processed)
+
+  ld a, c
+  or b
+  jp z, mower_pre_move
+
+  ld a, d
+  cp b
+  jr nz, check_dog_collision_loop
+  ld a, e
+  cp c
+  jr nz, check_dog_collision_loop
+
+; Dead doggy
+
+  call remove_hit_dog
+  call splatter
+
+  ld a, 4
+  ld (v_hit_solid), a
+  call add_damage
+
+  ld hl, str_hit_dog
+  ld a, STATUS_HIT_DOG
+  call display_status_message
+
+  xor a
+  ld (v_mower_x_dir), a
+  ld (v_mower_y_dir), a
+  jp main_loop_end
+
 
 ; Calculate destination of mower for some Checks
+
+mower_pre_move
 
   call calculate_mower_destination_coords
   call calc_xy_to_hl
@@ -118,8 +172,6 @@ check_mowing_grass
 
   ld a, 1
   call add_to_pending_score
-
-  jp mower_set_movement
 
 check_mower_wall_collision
 
@@ -180,7 +232,7 @@ check_fuel_collision
 
   ld a, 10
   call add_to_pending_score
-  jr mower_set_movement
+  jp mower_set_movement
 
 check_gnome_collision
 
@@ -222,7 +274,6 @@ check_gnome_collision
   ld (v_mower_y_dir), a
   ei
   jp main_loop_end
-
 
 mower_set_movement
 
@@ -361,7 +412,7 @@ main_game_over_damage
 
 main_game_over_damage_loop
 
-  halt
+  di
   push bc
   ld a, (v_mower_graphic)
   call putchar_8
@@ -408,6 +459,7 @@ main_game_over_damage_loop_2
 
   ld a, 7
   ld (v_attr), a
+  ei
 
 ; Delay 2 seconds or so
 
@@ -475,6 +527,18 @@ calculate_mower_destination_coords
   ld h, a
   ld a, (v_mower_y_dir)
   add h
+  ld h, a
+  ret
+
+;
+; Calculates the mower's current coordinates
+; and places them in HL = YX
+;
+calculate_mower_current_coords
+
+  ld a, (v_mowerx)
+  ld l, a
+  ld a, (v_mowery)
   ld h, a
   ret
 
@@ -575,393 +639,4 @@ frame_halt_3
   pop de
   pop hl
   ei
-  ret
-
-;
-; Count how much grass there is left to mow and store it.
-;
-
-survey_grass
-
-  ld a, 0
-  ld (v_grass_left), a
-  ld hl, level_buffer
-  ld bc, LEVEL_BUFFER_LEN
-  ld de, 0
-
-survey_grass_loop
-
-  ld a, (hl)
-  cp GRASS
-  jr nz, survey_grass_next
-
-  ld a, 1
-  ld (v_grass_left), a
-  ret
-
-survey_grass_next
-
-  inc hl
-  dec bc
-  ld a, b
-  or c
-  jr nz, survey_grass_loop
-  ret
-
-;
-; Handle status
-; Decrement counter and erase message if expired
-;
-
-handle_status
-
-  ld a, (v_status_delay)
-  cp 0
-  ret z
-  dec a
-  ld (v_status_delay), a
-  cp 0
-  ret nz
-  call expire_status_message
-  ret
-
-;
-; Expire the status message area
-; (Write black/black attributes but don't erase the screen)
-;
-
-expire_status_message
-
-  ld hl, 0x5ac0
-  ld de, 0x5ac1
-  ld bc, 0x40
-  xor a
-  ld (hl), a
-  ldir
-  ld (v_status_msg), a
-  ret
-;
-; Clear the status message area
-;
-clear_status_message
-
-  xor a
-  ld (v_status_msg), a
-
-  push hl
-  ld a, 22
-  ld (v_row), a
-  xor a
-  ld (v_column), a
-
-clear_status_msg_loop
-
-  ld a, ' '
-  call putchar_8
-  ld a, (v_column)
-  inc a
-  ld (v_column), a
-
-  cp 32
-  jr nz, clear_status_msg_loop
-
-  xor a
-  ld (v_column), a
-  ld a, (v_row)
-  cp 23
-  jr z, clear_status_msg_loop_end
-  ld a, 23
-  ld (v_row), a
-  jr clear_status_msg_loop
-  ret
-
-clear_status_msg_loop_end
-
-  pop hl
-  ret
-
-;
-; Display status message
-; Address of message is in HL
-; Message code is in A
-; Bottom two lines are cleared beforehand
-;
-
-display_status_message
-
-  ld b, a
-  ld a, (v_status_msg)
-  cp b
-  jr nz, display_status_message_2
-
-; Same message already displayed, just extend the timer
-
-  ld a, 20
-  ld (v_status_delay), a
-  ret
-
-display_status_message_2
-
-  ld a, b
-  push hl
-  push af
-  call clear_status_message
-  pop af
-
-  ld (v_status_msg), a
-  ld a, 20
-  ld (v_status_delay), a
-
-  call set_proportional_font
-  pop hl
-  call print
-  call set_fixed_font
-  ret
-
-; Called to display score and high score values.
-;
-
-display_score
-
-  push bc
-  xor a
-  ld (v_row),a
-  ld a, 6
-  ld (v_column), a
-  ld a, 0x45
-  ld (v_attr), a
-
-  ld a, 6
-  ld b, a
-  ld hl, v_score
-
-display_score_loop
-
-  ld a, (hl)
-  call putchar_8
-  ld a, (v_column)
-  inc hl
-  inc a
-  ld (v_column), a
-  djnz display_score_loop
-
-  ld a, 6
-  ld b, a
-  ld a, 18
-  ld (v_column), a
-  ld hl, high_score_table
-
-display_score_loop_2
-
-  ld a, (hl)
-  call putchar_8
-  ld a, (v_column)
-  inc hl
-  inc a
-  ld (v_column), a
-  djnz display_score_loop_2
-
-  pop bc
-  ld a, 7
-  ld (v_attr), a
-  ret
-
-;
-; Adds the amount given in accumulator
-; to the player's pending score
-;
-
-add_to_pending_score
-
-  ld b, a
-  ld a, (v_pending_score)
-  add b
-  ld (v_pending_score), a
-  ret
-
-;
-; Handles adding any pending score to the
-; player's current score.
-;
-
-increment_score
-
-  ld a, (v_pending_score)
-  cp 0
-  ret z
-  dec a
-  ld (v_pending_score), a
-  ld hl, v_score + 4
-
-  ld a, 10
-  ld (v_column), a
-  ld a, 0
-  ld (v_row), a
-  ld a, 0x45
-  ld (v_attr), a
-
-increment_score_loop
-
-  ld a, (hl)
-  inc a
-  cp '9' + 1
-  jr nz, increment_score_done
-  ld a, '0'
-  ld (hl), a
-  push hl
-  call putchar_8
-  pop hl
-  ld a, (v_column)
-  dec a
-  ld (v_column), a
-  dec hl
-  jr increment_score_loop
-
-increment_score_done
-  ld (hl), a
-  call putchar_8
-
-  ret
-;
-; Add damage
-; Amount of damage to add is held in accumulator
-;
-
-add_damage
-
-  ld b, a
-  ld a, (v_damage)
-  add b
-  cp 9
-
-  jr c, add_damage_display
-
-  ld a, 9
-
-add_damage_display
-
-  ld (v_damage), a
-  ld b, a
-
-; Repaint the damage meter
-
-  ld a, 1
-  ld (v_row), a
-  ld a, 7
-  ld (v_column), a
-  ld a, ATTR_TRANS
-  ld (v_attr), a
-
-add_damage_loop
-
-  ld a, 'k'
-  call putchar_8
-  ld a, (v_column)
-  inc a
-  ld (v_column), a
-  djnz add_damage_loop
-  ld a, 7
-  ld (v_attr), a
-  ret
-
-;
-; Main mower sound effect.
-; Call at the beginning of each frame.
-;
-mower_sound
-
-  push bc
-  ld a, 0x11
-  out (0xfe), a
-  ld b, 0x20
-
-mower_sound_loop
-
-  djnz mower_sound_loop
-
-  ld a, 0x1
-  out (0xfe), a
-  pop bc
-  ret
-
-mower_sound_wall_collision
-
-  push hl
-  push de
-  push bc
-  ld hl, 0
-  ld bc, 0x60
-  ld d, 0xff
-
-mower_sound_wall_collision_loop
-
-  ld a, (hl)
-  and 0xf8
-  out (0xfe), a
-  push bc
-  ld b, d
-
-mower_sound_wall_collision_loop_inner
-
-  djnz mower_sound_wall_collision_loop_inner
-  pop bc
-  dec d
-  inc hl
-  dec bc
-  ld a, b
-  or c
-  jr nz, mower_sound_wall_collision_loop
-
-  pop bc
-  pop de
-  pop hl
-  ret
-
-mower_sound_gnome_collision
-
-  push hl
-  push bc
-  ld hl, 0
-  ld bc, 0x200
-
-mower_sound_gnome_collision_loop
-
-  ld a, (hl)
-  and 0xf8
-  out (0xfe), a
-
-  inc hl
-  dec bc
-  ld a, b
-  or c
-  jr nz, mower_sound_gnome_collision_loop
-
-  pop bc
-  pop hl
-  ret
-
-
-;
-; Sets the pixel position of the mower based on
-; current playfield coordinates
-;
-mower_set_pixel_position
-
-  ld a, (v_mowerx)
-  sla a
-  sla a
-  sla a
-  ld (v_mower_x_moving), a
-  ld a, (v_mowery)
-
-; Map y coordinate from playfield to screen
-
-  inc a
-  inc a
-  inc a
-
-  sla a
-  sla a
-  sla a
-  ld (v_mower_y_moving), a
   ret
