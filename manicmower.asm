@@ -9,7 +9,6 @@
 
 init
 
-  im 0
   call init_print
 
   call cls
@@ -182,6 +181,8 @@ level_1_data
   defb 8, 3, 24, 5, 16, 6, 22, 7, 15, 9, 12, 10, 8, 11, 20, 13, 14, 13, 18, 15, 0, 0
   defb 7, 2, 22, 2, 23, 7, 12, 9, 0, 0
   defb 20, 11, 0, 0
+
+  ; dog was at 20, 11
 
 level_2_data
 level_3_data

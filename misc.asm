@@ -2,6 +2,140 @@
 ; misc.asm
 ;
 
+
+; Calculates the mower's destination coordinates
+; and places them in HL = YX
+;
+calculate_mower_destination_coords
+
+  ld a, (v_mowerx)
+  ld l, a
+  ld a, (v_mower_x_dir)
+  add l
+  ld l, a
+  ld a, (v_mowery)
+  ld h, a
+  ld a, (v_mower_y_dir)
+  add h
+  ld h, a
+  ret
+
+;
+; Calculates the mower's current coordinates
+; and places them in HL = YX
+;
+calculate_mower_current_coords
+
+  ld a, (v_mowerx)
+  ld l, a
+  ld a, (v_mowery)
+  ld h, a
+  ld a, (v_mower_y_dir)
+  add h
+  ld h, a
+  ret
+
+
+;
+; Take care of frame flyback, time counts etc.
+;
+
+frame_halt
+
+  halt
+  di
+  push hl
+  push de
+  push bc
+
+  ld a, (v_fuel_frame)
+  dec a
+  cp 0
+  jr nz, frame_halt_2
+
+; Are we out of fuel?
+
+  ld a, (v_fuel)
+  cp 0
+  jr z, frame_halt_2
+
+; Decrement fuel
+
+  dec a
+  ld (v_fuel), a
+
+; Display actual fuel left
+
+  ld b, 175
+  ld a, (v_fuel)
+  add b
+  ld (v_column), a
+  ld a, 8
+  ld (v_row), a
+  ld a, ' '
+  call putchar_pixel
+
+  ld a, FUEL_FRAMES
+
+frame_halt_2
+
+  ld (v_fuel_frame), a
+
+  ld a, (v_time_frame)
+  dec a
+  cp 0
+  jr nz, frame_halt_3
+
+; Decrement clock
+
+  ld hl, v_time + 1
+
+decrement_loop
+
+  ld a, (hl)
+  dec a
+  cp '0' - 1
+  jr nz, decrement_done
+
+  ld a, '9'
+  ld (hl), a
+  dec hl
+  jr decrement_loop
+
+decrement_done
+
+  ld (hl), a
+
+  xor a
+  ld (v_row), a
+  ld a, 30
+  ld (v_column), a
+  ld a, 0x45
+  ld (v_attr), a
+
+  ld a, (v_time)
+  call putchar_8
+  ld a, 31
+  ld (v_column), a
+  ld a, (v_time + 1)
+  call putchar_8
+
+  ld a, 7
+  ld (v_attr), a
+
+  ld a, TIME_FRAMES
+
+frame_halt_3
+
+  ld (v_time_frame), a
+
+  pop bc
+  pop de
+  pop hl
+  ei
+  ret
+
+
 delay_frames
 
   halt
@@ -68,7 +202,7 @@ expire_status_message
 
   ld hl, 0x5ac0
   ld de, 0x5ac1
-  ld bc, 0x40
+  ld bc, 0x3f
   xor a
   ld (hl), a
   ldir
