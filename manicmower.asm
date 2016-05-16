@@ -11,14 +11,18 @@ init
 
   call init_print
 
+  ld hl, default_keys
+  ld de, v_playerkeys
+  ld bc, 5
+  ldir
+
   call cls
 ;  -Start commented code
 
   call set_proportional_font
 
-  ld hl, str_wait
-  call print
-
+  call main_menu
+  
   call set_fixed_font
 
   ld hl, fixed_charset
@@ -70,14 +74,17 @@ init
 
   call main_loop
   call fade_out_attrs
-  ret
 
+  call restore_basic_registers
+
+  ret
 
   include "game.asm"
   include "screen.asm"
   include "input.asm"
   include "levels.asm"
   include "misc.asm"
+  include "mainmenu.asm"
 
 prepare_game
 
@@ -96,6 +103,17 @@ init_score
   ret
 
 ;
+; Restores registers for a return to BASIC.
+;
+
+restore_basic_registers
+
+  ld iy, 0x5c3a
+  exx
+  ld hl, 0x2758
+  exx
+  ret
+;
 ; Game text strings
 ;
 
@@ -107,7 +125,7 @@ str_text
 
 str_wait
 
-  defb "Press any key to commence demo...\n", 0
+  defb AT, 23, 0,  "Press any key to commence demo...\n", 0
 
 str_status
 
@@ -141,6 +159,16 @@ str_game_over_damage
 str_game_over_fuel
 
   defb AT, 22, 60, INK, 7, "You've run out of fuel!", 0
+
+; Image and graphic assets
+
+  include "assets.asm"
+
+; Default keys
+
+default_keys
+
+  defb "QAOPH"
 
 ; Game playfield is 32 x 18 (576 bytes)
 

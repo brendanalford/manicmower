@@ -30,9 +30,6 @@ calculate_mower_current_coords
   ld l, a
   ld a, (v_mowery)
   ld h, a
-  ld a, (v_mower_y_dir)
-  add h
-  ld h, a
   ret
 
 
@@ -567,7 +564,7 @@ mower_sound_loop
   pop bc
   ret
 
-mower_sound_wall_collision
+mower_sound_dog_collision
 
   push hl
   push de
@@ -576,7 +573,7 @@ mower_sound_wall_collision
   ld bc, 0x60
   ld d, 0xff
 
-mower_sound_wall_collision_loop
+mower_sound_dog_collision_loop
 
   ld a, (hl)
   and 0xf8
@@ -584,16 +581,16 @@ mower_sound_wall_collision_loop
   push bc
   ld b, d
 
-mower_sound_wall_collision_loop_inner
+mower_sound_dog_collision_loop_inner
 
-  djnz mower_sound_wall_collision_loop_inner
+  djnz mower_sound_dog_collision_loop_inner
   pop bc
   dec d
   inc hl
   dec bc
   ld a, b
   or c
-  jr nz, mower_sound_wall_collision_loop
+  jr nz, mower_sound_dog_collision_loop
 
   pop bc
   pop de
@@ -623,6 +620,35 @@ mower_sound_gnome_collision_loop
   pop hl
   ret
 
+mower_sound_wall_collision
+
+  ld bc, 0x80
+
+main_sound_wall_collision_loop
+
+  di
+  ld hl, bc
+
+main_sound_wall_collision_loop_1
+
+  ld a, (hl)
+  and 0xf8
+  out (0xfe), a
+  push bc
+  ld bc, 0x0002
+
+main_sound_wall_collision_loop_2
+
+  djnz main_sound_wall_collision_loop_2
+  pop bc
+
+  dec hl
+  ld a, h
+  or l
+  jr nz, main_sound_wall_collision_loop_1
+
+  ei
+  ret
 
 ;
 ; Sets the pixel position of the mower based on

@@ -60,9 +60,11 @@ v_mower_move_pixels	equ #fe44; 1	Pixels left to move before new input
 v_mower_x_dir				equ #fe45; 1	Mower x direction, 1 - down, 255 - up
 v_mower_y_dir				equ #fe46; 1	Mower y direction, 1 - down, 255 - up
 v_mower_graphic			equ #fe47; 1	Current mower graphic: a, b, c, d
-v_dog_index					equ #fe48; 1  Index of dog currently moving, FF if not
+v_dog_moving				equ #fe48; 1  Dog currently moving, 0 - no, 1 yes
 v_dog_x_moving			equ #fe49; 1	Dog X coordinate (pixel) while moving
-v_dog_y_moving			equ #fe50; 1	Dog Y coordinate (pixel) while moving
+v_dog_y_moving			equ #fe4a; 1	Dog Y coordinate (pixel) while moving
+v_dog_x_dir					equ #fe4b; 1	Dog x direction, 1 - down, 255 - up
+v_dog_y_dir					equ #fe4c; 1	Dog y direction, 1 - down, 255 - up
 v_damage						equ #fe51; 1	Damage level
 v_fuel							equ #fe52; 1	Fuel level
 v_hit_solid					equ #fe53; 1	Hit object - ignore keystrokes until key released
@@ -72,3 +74,9 @@ v_grass_left				equ #fe56; 1	Grass left to mow? 1 - yes, 0 - no
 v_time							equ #fe57; 2	Time left
 v_status_msg				equ #fe59; 1	Status message code, 0 - no message 1 - hit wall, 2 - hit gnome, 3 - hit flowers, 4 - hit dog
 v_status_delay			equ #fe5a; 1	Delay in frames before erasing status message
+v_playerkeys				equ #fe5b; 5	Keys used for controls (UDLRP)
+v_playerup					equ #fe5b; 1	Key used for UP
+v_playerdown				equ #fe5c; 1	Key used for DOWN
+v_playerleft				equ #fe5d; 1	Key used for LEFT
+v_playerright				equ #fe5e; 1	Key used for RIGHT
+v_playerpause				equ #fe5f; 1	key used for Pause

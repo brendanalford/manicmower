@@ -380,7 +380,7 @@ prepare_dog_loop
 ; Set dog movement variables
 
   ld a, 0xff
-  ld (v_dog_index), a
+  ld (v_dog_moving), a
   xor a
   ld (v_dog_x_moving), a
   ld (v_dog_y_moving), a

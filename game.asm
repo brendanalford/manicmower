@@ -138,7 +138,8 @@ check_dog_collision_loop
   ld a, 4
   ld (v_hit_solid), a
   call add_damage
-
+  call mower_sound_dog_collision
+  
   ld hl, str_hit_dog
   ld a, STATUS_HIT_DOG
   call display_status_message
@@ -290,6 +291,10 @@ mower_set_movement
   add b
   ld (v_mowery), a
 
+; If we're going to move a dog at this point, do it here
+
+  call check_move_dog
+
   ld b, 8
 
 mower_move
@@ -310,36 +315,25 @@ mower_move_2
 
 mower_move_3
 
-  ld a, (v_mower_x_moving)
-  ld (v_column), a
-  ld a, (v_mower_y_moving)
-  ld (v_row), a
-  ld a, ' '
-  call putchar_pixel
+; Move the mower
 
-  ld a, (v_mower_x_moving)
-  ld c, a
-  ld a, (v_mower_x_dir)
-  add a, c
-  ld (v_mower_x_moving), a
+  call move_mower_pixel
 
-  ld a, (v_mower_y_moving)
-  ld c, a
-  ld a, (v_mower_y_dir)
-  add a, c
-  ld (v_mower_y_moving), a
+; If there's a dog moving, take care of him also
 
-  ld a, (v_mower_x_moving)
-  ld (v_column), a
-  ld a, (v_mower_y_moving)
-  ld (v_row), a
-  ld a, (v_mower_graphic)
-  call putchar_pixel
+  ld a, (v_dog_moving)
+  cp 0
+  jr z, mower_move_4
+
+  call move_dog_pixel
+
+mower_move_4
 
   call increment_score
 
   xor a
   out (0xfe), a
+
   djnz mower_move
 
 main_loop_end
@@ -504,10 +498,253 @@ main_game_over_fuel_loop_3
   cp 0x08
   jr nz, main_game_over_fuel_loop
 
-  ; Delay 2 seconds or so
+; Delay 2 seconds or so
 
   ld bc, 100
   call delay_frames
   ret
 
 ;
+; Check for each dog in the dog list:
+; - Are we actually going to move the dog?
+; - What direction we're going to send him in.
+; - Can he actually move in that direction (mown grass only)
+; If one is selected for movement, no others will move even
+; if it turns out the selected one cant move.
+
+check_move_dog
+
+  xor a
+  ld (v_dog_moving), a
+  ld ix, v_dogbuffer
+
+check_move_dog_2
+
+; Check to see if we have a dog to consider
+
+  ld a, (ix)
+  or (ix+1)
+  jr nz, check_move_dog_found
+
+; End of dog list and no dog selected, return
+
+  ret
+
+check_move_dog_found
+
+  ld a, %01010000
+  ld (0x5ae0), a
+
+  xor a
+  ld (v_dog_x_dir), a
+  ld (v_dog_y_dir), a
+
+  ld a, r
+  and 0xf
+  cp 0
+
+  jr z, check_move_dog_selected
+
+; Not moving this dog, consider others
+
+  inc ix
+  inc ix
+  jr check_move_dog_2
+
+check_move_dog_selected
+
+; Moving this dog, pick a direction to move
+; Use the bits taken from 3-7 of the R register
+
+  ld a, r
+  sra a
+  sra a
+  sra a
+  and 0xf
+  ld b, a
+
+; Check right
+
+  bit 0, b
+  jr z, check_move_dog_sel_1
+
+  ld a, 1
+  ld (v_dog_x_dir), a
+  jr check_move_dog_can_move
+
+check_move_dog_sel_1
+
+; Check left
+
+  bit 1, b
+  jr z, check_move_dog_sel_2
+
+  ld a, 255
+  ld (v_dog_x_dir), a
+  jr check_move_dog_can_move
+
+check_move_dog_sel_2
+
+; Check up
+
+  bit 2, b
+  jr z, check_move_dog_sel_3
+
+  ld a, 255
+  ld (v_dog_y_dir), a
+  jr check_move_dog_can_move
+
+check_move_dog_sel_3
+
+; If no direction has been chosen, go for move down
+
+  ld a, 1
+  ld a, 255
+  ld (v_dog_y_dir), a
+
+check_move_dog_can_move
+
+; Calculate the dog's destination. He's still at IX
+; Destination will be in HL
+; While doing this, store the dog's current location in HL'
+
+  ld a, (ix)
+  ld l, a
+  exx
+  ld l, a
+  exx
+  ld a, (v_dog_x_dir)
+  add l
+  ld l, a
+
+  ld a, (ix+1)
+  ld h, a
+  exx
+  ld h, a
+  exx
+  ld a, (v_dog_y_dir)
+  add h
+  ld h, a
+
+; Store destination in DE for later
+
+  push hl
+  pop de
+
+; Get offset into level buffer of destination
+
+  call calc_xy_to_hl
+  ld bc, level_buffer
+  or a
+  add hl, bc
+
+
+
+; Mown grass?
+
+  ld a, (hl)
+  cp MOWN_GRASS
+  ret nz
+
+; Yay - criteria filled!
+; 1) Update the dog position in the buffer
+; 2) Set game variables for the move
+
+  ld (ix), e
+  ld (ix+1), d
+
+  ld a, 1
+  ld (v_dog_moving), a
+
+; Set current pixel position of the dog
+; This is in HL' from earlier
+
+  exx
+  ld a, l
+  sla a
+  sla a
+  sla a
+  ld (v_dog_x_moving), a
+
+  ld a, h
+  inc a
+  inc a
+  inc a
+
+  sla a
+  sla a
+  sla a
+  ld (v_dog_y_moving), a
+  exx
+
+; All vars set, the main loop will handle this from now on
+
+  ld a, %01100000
+  ld (0x5ae0), a
+
+  ret
+
+;
+; Moves the mower in the direction desired, pixel by pixel
+;
+move_mower_pixel
+
+  ld a, (v_mower_x_moving)
+  ld (v_column), a
+  ld a, (v_mower_y_moving)
+  ld (v_row), a
+  ld a, ' '
+  call putchar_pixel
+
+  ld a, (v_mower_x_moving)
+  ld c, a
+  ld a, (v_mower_x_dir)
+  add a, c
+  ld (v_mower_x_moving), a
+
+  ld a, (v_mower_y_moving)
+  ld c, a
+  ld a, (v_mower_y_dir)
+  add a, c
+  ld (v_mower_y_moving), a
+
+  ld a, (v_mower_x_moving)
+  ld (v_column), a
+  ld a, (v_mower_y_moving)
+  ld (v_row), a
+  ld a, (v_mower_graphic)
+  call putchar_pixel
+  ret
+
+
+;
+; Moves the dog in the direction desired, pixel by pixel
+;
+move_dog_pixel
+
+  ld a, (v_dog_x_moving)
+  ld (v_column), a
+  ld a, (v_dog_y_moving)
+  ld (v_row), a
+  ld a, ' '
+  call putchar_pixel
+
+  ld a, (v_dog_x_moving)
+  ld c, a
+  ld a, (v_dog_x_dir)
+  add a, c
+  ld (v_dog_x_moving), a
+
+  ld a, (v_dog_y_moving)
+  ld c, a
+  ld a, (v_dog_y_dir)
+  add a, c
+  ld (v_dog_y_moving), a
+
+  ld a, (v_dog_x_moving)
+  ld (v_column), a
+  ld a, (v_dog_y_moving)
+  ld (v_row), a
+  ld a, 'f'
+  call putchar_pixel
+  ret
