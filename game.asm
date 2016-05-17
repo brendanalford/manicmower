@@ -41,7 +41,8 @@ check_keyboard_input
 
 check_mower_key_up
 
-  cp 'Q'
+  ld hl, v_playerup
+  cp (hl)
   jr nz, check_mower_key_down
   xor a
   ld (v_mower_x_dir), a
@@ -53,7 +54,8 @@ check_mower_key_up
 
 check_mower_key_down
 
-  cp 'A'
+  ld hl, v_playerdown
+  cp (hl)
   jr nz, check_mower_key_left
   xor a
   ld (v_mower_x_dir), a
@@ -65,7 +67,8 @@ check_mower_key_down
 
 check_mower_key_left
 
-  cp 'O'
+  ld hl, v_playerleft
+  cp (hl)
   jr nz, check_mower_key_right
   xor a
   ld (v_mower_y_dir), a
@@ -77,7 +80,8 @@ check_mower_key_left
 
 check_mower_key_right
 
-  cp 'P'
+  ld hl, v_playerright
+  cp (hl)
   jr nz, check_mower_moving
   xor a
   ld (v_mower_y_dir), a
@@ -139,7 +143,7 @@ check_dog_collision_loop
   ld (v_hit_solid), a
   call add_damage
   call mower_sound_dog_collision
-  
+
   ld hl, str_hit_dog
   ld a, STATUS_HIT_DOG
   call display_status_message

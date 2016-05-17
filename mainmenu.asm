@@ -282,7 +282,8 @@ str_main_menu_pun_8
 
 str_scrolly_message
 
-  defb " *** Manic Mower 2016    By Brendan Alford     Based on the crappy original written by myself in 1992    "
+  defb " *** Manic Mower    (C) Brendan Alford 2016    Based on the crappy original written by myself in 1992 "
+  defb "that somehow got published in Sinclair User...    "
   defb "Mow the lawns as quickly as possible while avoiding the walls, garden gnomes, plants and especially "
   defb "Rover the dog and his fellow mutts...   Pick up fuel cans to avoid running out of fuel...   "
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...   "

@@ -358,9 +358,9 @@ prepare_dog_loop
   inc ix
   inc ix
   inc hl
+  ld a, (hl)
   inc hl
-  ld a, h
-  or l
+  or (hl)
   jr nz, prepare_dog_loop
 
 ; Set mower coordinates to start
