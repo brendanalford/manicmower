@@ -17,44 +17,19 @@ init
   ldir
 
   call cls
-;  -Start commented code
 
   call set_proportional_font
 
   call main_menu
-  
-  call set_fixed_font
-
-  ld hl, fixed_charset
-  ld (v_charset), hl
-
-  call set_print_shadow_screen
   call cls
-
-  ld hl, str_text
-  call print
-
-  ld hl, proportional_charset
-  ld (v_charset), hl
-  xor a
-  ld (v_width), a
-
-  ld hl, str_text
-  call print
-
-  call get_key
-  call copy_shadow_screen
-
-  call cls
-
-; End commented code
 
   xor a
   ld (v_level), a
 
   call set_print_shadow_screen
+  call cls
+  
   call prepare_game
-
   call prepare_level
   call display_level
 

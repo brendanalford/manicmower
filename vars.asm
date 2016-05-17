@@ -27,6 +27,7 @@
 
 pixel_row_buffer		equ #f800; 200
 level_buffer				equ #fa00; 300
+logo_attr_buffer		equ #fd00; 100
 
 
 ;	Printing system variables
@@ -80,3 +81,7 @@ v_playerdown				equ #fe5c; 1	Key used for DOWN
 v_playerleft				equ #fe5d; 1	Key used for LEFT
 v_playerright				equ #fe5e; 1	Key used for RIGHT
 v_playerpause				equ #fe5f; 1	key used for Pause
+
+v_scrolly_ptr				equ #fe60; 2	Current position of scrolly message
+v_scrolly_bits			equ #fe62; 1	Bits left before new character
+v_logo_attr_ptr			equ #fe63; 1	Low byte of pointer into logo attribute buffer
