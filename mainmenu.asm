@@ -43,6 +43,8 @@ main_menu
   call init_scrolly
   call init_logo_attrs
 
+  call display_current_control_method
+
 main_menu_loop
 
   halt
@@ -52,6 +54,23 @@ main_menu_loop
   out (0xfe), a
   call scan_keys
   jr nc, main_menu_loop
+
+  cp '1'
+  jr c, main_menu_loop
+  cp '9'
+  jr nc, main_menu_loop
+
+; Option selected between 1 and 8
+
+  cp '6'
+  jr nc, menu_other_selection
+
+  sub '1'
+  ld (v_control_method), a
+  call display_current_control_method
+  jr main_menu_loop
+  
+menu_other_selection
 
 main_menu_done
 
@@ -221,19 +240,46 @@ move_scrolly_4
   dec (hl)
   ret
 
+display_current_control_method
+
+  ld hl, 0x5940 ; Line 10 of attr file
+  ld de, 0x5941
+  ld bc, 0x20 * 5
+  ld a, 6
+  ld (hl), a
+  ldir
+
+  xor a
+  ld hl, 0x5940
+  ld a, (v_control_method)
+  rla
+  rla
+  rla
+  rla
+  rla
+  add l
+  ld l, a
+  ld de, hl
+  inc de
+  ld bc, 0x1f
+  ld a, %01000111
+  ld (hl), a
+  ldir
+  ret
+
 str_main_menu_options
 
-  defb AT, 10, 70, INK, 7, BRIGHT, 1, "1. Keyboard ("
+  defb AT, 10, 70, INK, 6, BRIGHT, 0, "1. Keyboard ("
 
 str_main_menu_keys
 
   defb "*****)"
 
-  defb AT, 11, 70, BRIGHT, 1, "2. Sinclair 1"
-  defb AT, 12, 70, BRIGHT, 1, "3. Sinclair 2"
-  defb AT, 13, 70, BRIGHT, 1, "4. Kempston"
-  defb AT, 14, 70, BRIGHT, 1, "5. Cursor"
-  defb AT, 16, 70, BRIGHT, 1, "6. Redefine Keys"
+  defb AT, 11, 70, "2. Sinclair 1"
+  defb AT, 12, 70, "3. Sinclair 2"
+  defb AT, 13, 70, "4. Kempston"
+  defb AT, 14, 70, "5. Cursor"
+  defb AT, 16, 70, BRIGHT, 1, INK, 7, "6. Redefine Keys"
   defb AT, 17, 70, BRIGHT, 1, "7. View High Scores"
   defb AT, 19, 85, BRIGHT, 1, "8. Start Game", 0
 

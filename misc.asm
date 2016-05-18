@@ -14,11 +14,8 @@ init_controls
 
 set_game_controls
 
-  ld hl, v_definekeys
   ld de, v_playerkeys
   ld bc, 5
-  ldir
-  ret
 
   ld a, (v_control_method)
   cp 0
