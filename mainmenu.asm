@@ -69,8 +69,14 @@ main_menu_loop
   ld (v_control_method), a
   call display_current_control_method
   jr main_menu_loop
-  
+
 menu_other_selection
+
+  cp '8'
+  ret z
+  jr main_menu_loop
+
+; Redefine keys and high score viewing go here
 
 main_menu_done
 

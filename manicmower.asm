@@ -12,6 +12,8 @@ init
   call init_print
   call init_controls
 
+after_init
+
   call cls
 
   call set_proportional_font
@@ -46,9 +48,13 @@ init
   call set_print_main_screen
 
   call main_loop
-  
+
   call fade_out_attrs
 
+  call scan_keys
+  cp ' '
+  jr nz,after_init
+  
   call restore_basic_registers
 
   ret
