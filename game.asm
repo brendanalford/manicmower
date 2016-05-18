@@ -15,35 +15,33 @@ main_loop
   xor a
   ld (v_slow_movement), a
 
-; Scan keyboard
+; Scan controls
 
-check_keyboard
+check_control_input
 
   xor a
-  call scan_keys
-  jp c, check_keyboard_input
+  call read_controls
+  ld a, (v_controlbits)
+  cp 0
+  jp nz, control_input_made
 
   xor a
   ld (v_hit_solid), a
 
   jp check_dog_collision
 
-check_keyboard_input
+control_input_made
 
   ld b, a
   ld a, (v_hit_solid)
   cp 0
   jr nz, check_dog_collision
 
-  ld a, b
-  cp ' '
-  jp z, main_loop_exit
+check_mower_up
 
-check_mower_key_up
-
-  ld hl, v_playerup
-  cp (hl)
-  jr nz, check_mower_key_down
+  ld hl, v_controlbits
+  bit 3, (hl)
+  jr z, check_mower_down
   xor a
   ld (v_mower_x_dir), a
   dec a
@@ -52,11 +50,10 @@ check_mower_key_up
   ld (v_mower_graphic), a
   jp check_dog_collision
 
-check_mower_key_down
+check_mower_down
 
-  ld hl, v_playerdown
-  cp (hl)
-  jr nz, check_mower_key_left
+  bit 2, (hl)
+  jr z, check_mower_left
   xor a
   ld (v_mower_x_dir), a
   inc a
@@ -65,11 +62,10 @@ check_mower_key_down
   ld (v_mower_graphic), a
   jp check_dog_collision
 
-check_mower_key_left
+check_mower_left
 
-  ld hl, v_playerleft
-  cp (hl)
-  jr nz, check_mower_key_right
+  bit 1, (hl)
+  jr z, check_mower_right
   xor a
   ld (v_mower_y_dir), a
   dec a
@@ -78,11 +74,10 @@ check_mower_key_left
   ld (v_mower_graphic), a
   jp check_dog_collision
 
-check_mower_key_right
+check_mower_right
 
-  ld hl, v_playerright
-  cp (hl)
-  jr nz, check_mower_moving
+  bit 0, (hl)
+  jr z, check_mower_moving
   xor a
   ld (v_mower_y_dir), a
   inc a

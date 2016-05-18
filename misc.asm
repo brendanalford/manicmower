@@ -2,6 +2,142 @@
 ; misc.asm
 ;
 
+init_controls
+
+  ld hl, default_keys
+  ld de, v_definekeys
+  ld bc, 5
+  ldir
+  xor a
+  ld (v_control_method), a
+  ret
+
+set_game_controls
+
+  ld hl, v_definekeys
+  ld de, v_playerkeys
+  ld bc, 5
+  ldir
+  ret
+
+  ld a, (v_control_method)
+  cp 0
+  jr nz, set_game_controls_2
+
+  ld hl, v_definekeys
+  jr set_game_controls_end
+
+set_game_controls_2
+
+  cp 1
+  jr nz, set_game_controls_3
+
+  ld hl, controls_sinclair1
+  jr set_game_controls_end
+
+set_game_controls_3
+
+  cp 2
+  jr nz, set_game_controls_4
+
+  ld hl, controls_sinclair2
+  jr set_game_controls_end
+
+set_game_controls_4
+
+  cp 4
+  ret nz
+
+  ld hl, controls_cursor
+
+set_game_controls_end
+
+  ldir
+  ret
+
+controls_sinclair1
+
+  defb "98670"
+
+controls_sinclair2
+
+  defb "43125"
+
+controls_cursor
+
+  defb "76580"
+
+;
+; Reads the keyboard (or Kempston joystick) and sets the
+; control bitmap appropriately
+;
+read_controls
+
+  xor a
+  ld (v_controlbits), a
+
+  ld a, (v_control_method)
+  cp 3
+  jr nz, read_controls_keyboard
+
+read_controls_kempston
+
+  in a, (0x1f)
+  and 0x1f
+  ld (v_controlbits), a
+  ret
+
+read_controls_keyboard
+
+  xor a
+  call scan_keys
+  ret nc
+
+  ld hl, v_controlbits
+  ld b, a
+  ld a, (v_playerpause)
+  cp b
+  jr nz, read_controls_up
+
+  set 4, (hl)
+  ret
+
+read_controls_up
+
+  ld a, (v_playerup)
+  cp b
+  jr nz, read_controls_down
+
+  set 3, (hl)
+  ret
+
+read_controls_down
+
+  ld a, (v_playerdown)
+  cp b
+  jr nz, read_controls_left
+
+  set 2, (hl)
+  ret
+
+read_controls_left
+
+  ld a, (v_playerleft)
+  cp b
+  jr nz, read_controls_right
+
+  set 1, (hl)
+  ret
+
+read_controls_right
+
+  ld a, (v_playerright)
+  cp b
+  ret nz
+
+  set 0, (hl)
+  ret
+
 
 ; Calculates the mower's destination coordinates
 ; and places them in HL = YX

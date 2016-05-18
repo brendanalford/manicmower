@@ -13,7 +13,7 @@ main_menu
   call cls
 
   call main_menu_logo
-  ld hl, v_playerkeys
+  ld hl, v_definekeys
   ld de, str_main_menu_keys
   ld bc, 5
   ldir

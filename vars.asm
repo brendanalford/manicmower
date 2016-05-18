@@ -81,7 +81,10 @@ v_playerdown				equ #fe5c; 1	Key used for DOWN
 v_playerleft				equ #fe5d; 1	Key used for LEFT
 v_playerright				equ #fe5e; 1	Key used for RIGHT
 v_playerpause				equ #fe5f; 1	key used for Pause
+v_definekeys				equ #fe60; 5	Keys defined for keyboard option
+v_control_method 		equ #fe65; 1	Control type: 0 Keyboard, 1 Sinclair 1, 2 Sinclair 2, 3 Kempston, 4 Cursor
+v_controlbits				equ #fe66; 1	Control bitmap: xxxFUDLR
 
-v_scrolly_ptr				equ #fe60; 2	Current position of scrolly message
-v_scrolly_bits			equ #fe62; 1	Bits left before new character
-v_logo_attr_ptr			equ #fe63; 1	Low byte of pointer into logo attribute buffer
+v_scrolly_ptr				equ #fe70; 2	Current position of scrolly message
+v_scrolly_bits			equ #fe72; 1	Bits left before new character
+v_logo_attr_ptr			equ #fe73; 1	Low byte of pointer into logo attribute buffer

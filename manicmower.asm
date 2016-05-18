@@ -10,11 +10,7 @@
 init
 
   call init_print
-
-  ld hl, default_keys
-  ld de, v_playerkeys
-  ld bc, 5
-  ldir
+  call init_controls
 
   call cls
 
@@ -23,12 +19,14 @@ init
   call main_menu
   call cls
 
+  call set_game_controls
+
   xor a
   ld (v_level), a
 
   call set_print_shadow_screen
   call cls
-  
+
   call prepare_game
   call prepare_level
   call display_level
@@ -48,6 +46,7 @@ init
   call set_print_main_screen
 
   call main_loop
+  
   call fade_out_attrs
 
   call restore_basic_registers
