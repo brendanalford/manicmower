@@ -66,6 +66,9 @@ v_dog_x_moving			equ #fe49; 1	Dog X coordinate (pixel) while moving
 v_dog_y_moving			equ #fe4a; 1	Dog Y coordinate (pixel) while moving
 v_dog_x_dir					equ #fe4b; 1	Dog x direction, 1 - down, 255 - up
 v_dog_y_dir					equ #fe4c; 1	Dog y direction, 1 - down, 255 - up
+v_dogs_hit					equ #fe4d; 1	Number of dogs hit this level
+v_gnomes_hit				equ #fe4e; 1	Number of gnomes hit this level
+v_flowers_hit				equ #fe4f; 1 	Number of flowers hit this level
 v_damage						equ #fe51; 1	Damage level
 v_fuel							equ #fe52; 1	Fuel level
 v_hit_solid					equ #fe53; 1	Hit object - ignore keystrokes until key released

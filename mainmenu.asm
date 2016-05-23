@@ -2,7 +2,19 @@
 ; mainmenu.asm
 ;
 
+;
+; AY Module
+; Player loads to A200 (41472)
+; Tune loads to AA6E (43630)
+; Init: A200
+; Play: A205
+; Mute: A208
+;
 main_menu
+
+; Init music Player
+  ld hl, tune_main_menu
+  call init_music
 
   xor a
   ld (v_attr), a
@@ -48,6 +60,8 @@ main_menu
 main_menu_loop
 
   halt
+  call play_music
+
   call move_logo_attrs
   call move_scrolly
   xor a
@@ -55,9 +69,12 @@ main_menu_loop
   call scan_keys
   jr nc, main_menu_loop
 
+  cp '0'
+  jr z, main_menu_done
+
   cp '1'
   jr c, main_menu_loop
-  cp '9'
+  cp '8'
   jr nc, main_menu_loop
 
 ; Option selected between 1 and 8
@@ -72,14 +89,13 @@ main_menu_loop
 
 menu_other_selection
 
-  cp '8'
-  ret z
   jr main_menu_loop
 
 ; Redefine keys and high score viewing go here
 
 main_menu_done
 
+  call ay_player_mute
   ret
 
 main_menu_logo
@@ -285,9 +301,9 @@ str_main_menu_keys
   defb AT, 12, 70, "3. Sinclair 2"
   defb AT, 13, 70, "4. Kempston"
   defb AT, 14, 70, "5. Cursor"
-  defb AT, 16, 70, BRIGHT, 1, INK, 7, "6. Redefine Keys"
-  defb AT, 17, 70, BRIGHT, 1, "7. View High Scores"
-  defb AT, 19, 85, BRIGHT, 1, "8. Start Game", 0
+  defb AT, 16, 70, BRIGHT, 1, INK, 1, "6. Redefine Keys"
+  defb AT, 17, 70, BRIGHT, 1, INK, 1, "7. View High Scores"
+  defb AT, 19, 85, BRIGHT, 1, INK, 7, "0. Start Game", 0
 
 str_main_menu_pun_table
 
@@ -306,23 +322,23 @@ str_main_menu_pun_1
 
 str_main_menu_pun_2
 
-  defb AT, 7, 38, INK, 6, "If the grass looks greener, it's", AT, 8, 70,"probably astroturf", 0
+  defb AT, 7, 38, INK, 4, "If the grass looks greener, it's", AT, 8, 70,"probably astroturf", 0
 
 str_main_menu_pun_3
 
-  defb AT, 7, 24, INK, 5, "I fought the lawn, and the lawn won", 0
+  defb AT, 7, 24, INK, 4, "I fought the lawn, and the lawn won", 0
 
 str_main_menu_pun_4
 
-  defb AT, 7, 76, INK, 4, "Take that, grass!", 0
+  defb AT, 7, 76, INK, 4, "Your ass is grass", 0
 
 str_main_menu_pun_5
 
-  defb AT, 7, 50, INK, 6, "Lawn Enforcement Officer", 0
+  defb AT, 7, 50, INK, 4, "Lawn Enforcement Officer", 0
 
 str_main_menu_pun_6
 
-  defb AT, 7, 66, INK, 5, "A cut above the rest", 0
+  defb AT, 7, 66, INK, 4, "A cut above the rest", 0
 
 str_main_menu_pun_7
 
@@ -330,14 +346,15 @@ str_main_menu_pun_7
 
 str_main_menu_pun_8
 
-  defb AT, 7, 80, INK, 6, "Get off my lawn", 0
+  defb AT, 7, 80, INK, 4, "Get off my lawn", 0
 
 str_scrolly_message
 
-  defb " *** Manic Mower    (C) Brendan Alford 2016    Based on the crappy original written by myself in 1992 "
+  defb " Manic Mower    Written by Brendan Alford    Music kindly donated by Gasman"
+  defb "    Based on the crappy original written by myself in 1992 "
   defb "that somehow got published in Sinclair User...    "
   defb "Mow the lawns as quickly as possible while avoiding the walls, garden gnomes, plants and especially "
   defb "Rover the dog and his fellow mutts...   Pick up fuel cans to avoid running out of fuel...   "
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...   "
   defb "Damage to your mower will need to be repaired before tackling the next lawn...                            "
-  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...       ", 0
+  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...   ++++   ", 0

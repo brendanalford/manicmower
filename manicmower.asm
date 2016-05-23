@@ -3,6 +3,9 @@
 ;
 ; Your ass is grass (tm)
 ;
+; Music by Gasman
+; Title screen: Oh Crap it's almost the deadline
+; Ingame: Ninja Milkman Conspiracy
 
   org 0x8000
   include "vars.asm"
@@ -14,8 +17,13 @@ init
 
 after_init
 
-  call cls
+;  call cls
+;  call set_fixed_font
+;  ld hl, str_text
+;  call print
+;  call get_key
 
+  call cls
   call set_proportional_font
 
   call main_menu
@@ -47,6 +55,9 @@ after_init
 
   call set_print_main_screen
 
+  ld hl, tune_in_game
+  call init_music
+
   call main_loop
 
   call fade_out_attrs
@@ -54,7 +65,7 @@ after_init
   call scan_keys
   cp ' '
   jr nz,after_init
-  
+
   call restore_basic_registers
 
   ret
@@ -150,6 +161,33 @@ default_keys
 
   defb "QAOPH"
 
+;
+; Music. Relocate this.
+;
+
+  ;
+  ; AY Module
+  ; Player loads to A200 (41472)
+  ; Tune loads to AA6E (43630)
+  ; Init: A200
+  ; Play: A205
+  ; Mute: A208
+  ;
+
+  BLOCK 0xA200-$, 0x00
+
+  incbin "player.bin"
+
+  BLOCK 0xAA6E-$, 0x00
+
+tune_main_menu
+
+  incbin "tune.bin"
+
+tune_in_game
+
+ incbin "tune2.bin"
+
 ; Game playfield is 32 x 18 (576 bytes)
 
   BLOCK 0xE200-$, 0x00
@@ -189,8 +227,6 @@ level_1_data
   defb 8, 3, 24, 5, 16, 6, 22, 7, 15, 9, 12, 10, 8, 11, 20, 13, 14, 13, 18, 15, 0, 0
   defb 7, 2, 22, 2, 23, 7, 12, 9, 0, 0
   defb 20, 11, 0, 0
-
-  ; dog was at 20, 11
 
 level_2_data
 level_3_data

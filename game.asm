@@ -6,6 +6,11 @@ main_loop
   call frame_halt
   call mower_sound
 
+; Break pressed to abort game?
+
+  call check_break_pressed
+  jp c, main_loop_exit
+
 ; Are we done with the grass?
 
   ld a, (v_grass_left)
@@ -310,6 +315,7 @@ mower_move_2
   ld a, (v_slow_movement)
   cp 0
   jr z, mower_move_3
+  call play_music
   call frame_halt
 
 mower_move_3
@@ -332,7 +338,7 @@ mower_move_4
 
   xor a
   out (0xfe), a
-
+  call play_music
   djnz mower_move
 
 main_loop_end
@@ -343,6 +349,7 @@ main_loop_end
 
   call survey_grass
   call handle_status
+  call play_music
 
 ; Check damage
 
@@ -373,6 +380,7 @@ main_loop_end_3
 
 main_loop_exit
 
+  call mute_music
   xor a
   out (0xfe), a
   ret
@@ -383,6 +391,7 @@ main_loop_exit
 
 main_game_over_damage
 
+  call mute_music
   ld hl, str_game_over_damage
   ld a, STATUS_GAME_OVER
   call display_status_message
@@ -465,6 +474,7 @@ main_game_over_damage_loop_2
 
 main_game_over_out_of_fuel
 
+  call mute_music
   ld hl, str_game_over_fuel
   ld a, STATUS_GAME_OVER
   call display_status_message

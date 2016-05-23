@@ -413,6 +413,10 @@ prepare_misc
 ; Set damage / fuel levels
 
   ld (v_damage), a
+  ld (v_dogs_hit), a
+  ld (v_gnomes_hit), a
+  ld (v_flowers_hit), a
+  
   ld a, 80
   ld (v_fuel), a
   ld a, 'a'
@@ -430,6 +434,7 @@ prepare_misc
   xor a
   ld (v_status_msg), a
   ld (v_status_delay), a
+
   call survey_grass
   call display_score
 

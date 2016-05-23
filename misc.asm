@@ -135,6 +135,22 @@ read_controls_right
   set 0, (hl)
   ret
 
+;
+; Checks if break was pressed. Carry flag reflects status.
+;
+check_break_pressed
+
+  or a
+  ld bc, 0xfefe
+  in a, (c)
+  bit 0, a
+  ret nz
+  ld bc, 0x7ffe
+  in a, (c)
+  bit 0, a
+  ret nz
+  scf
+  ret
 
 ; Calculates the mower's destination coordinates
 ; and places them in HL = YX
@@ -686,7 +702,7 @@ mower_sound
   push bc
   ld a, 0x11
   out (0xfe), a
-  ld b, 0x20
+  ld b, 0x10
 
 mower_sound_loop
 
@@ -807,3 +823,48 @@ mower_set_pixel_position
   sla a
   ld (v_mower_y_moving), a
   ret
+
+
+;	AY Player constants
+
+	define ay_player_init   0xA200
+	define ay_player_play   0xA205
+	define ay_player_mute   0xA208
+
+;
+; Sets current music module to be played.
+; Address of module should be in HL.
+;
+
+init_music
+
+  call ay_player_init + 3
+  ret
+
+;
+; Calls music player, preserving all registers.
+;
+play_music
+
+  push hl
+  push de
+  push bc
+  push af
+  push ix
+  push iy
+
+  ld hl, ay_player_init + 0x0a
+  res 0, (hl)
+  call ay_player_play
+
+  pop iy
+  pop ix
+  pop af
+  pop bc
+  pop de
+  pop hl
+  ret
+
+mute_music
+
+  jp ay_player_mute
