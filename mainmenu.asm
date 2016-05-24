@@ -50,6 +50,7 @@ main_menu
 
   ld hl, str_main_menu_options
   call print
+  call display_current_sound_option
 
   call set_print_main_screen
   call copy_shadow_screen_pixels
@@ -76,6 +77,9 @@ main_menu_loop
   cp '0'
   jr z, main_menu_done
 
+  cp '9'
+  jr modify_sound_options
+
   cp '1'
   jr c, main_menu_loop
   cp '8'
@@ -92,6 +96,50 @@ main_menu_loop
   jr main_menu_loop
 
 menu_other_selection
+
+  jr main_menu_loop
+
+modify_sound_options
+
+  ld a, (v_audio_options)
+  inc a
+  and 0x03
+  ld b, a
+  ld a, (v_128k_detected)
+  cp 0
+  jr nz, modify_sound_options_1
+
+  ld a, b
+  and 0x1
+  ld b, a
+
+modify_sound_options_1
+
+  ld a, b
+  cp 2
+  jr nz, modify_sound_options_2
+
+  inc a
+
+modify_sound_options_2
+
+  ld (v_audio_options), a
+  call display_current_sound_option
+
+modify_sound_options_3
+
+  halt
+  call move_logo_attrs
+  call move_scrolly
+  call scan_keys
+  jr c, modify_sound_options_3
+
+; Consider impact on music if playing
+
+  ld a, (v_audio_options)
+  bit 1, a
+  call z, mute_music
+  call nz, restart_music
 
   jr main_menu_loop
 
@@ -293,6 +341,21 @@ display_current_control_method
   ldir
   ret
 
+display_current_sound_option
+
+  ld a, (v_audio_options)
+  add a, a
+  ld c, a
+  ld a, 0
+  ld b, a
+  ld hl, sound_option_table
+  or a
+  add hl, bc
+  ld de, (hl)
+  ld hl, de
+  call print
+  ret
+
 str_main_menu_options
 
   defb AT, 10, 70, INK, 6, BRIGHT, 0, "1. Keyboard ("
@@ -307,7 +370,26 @@ str_main_menu_keys
   defb AT, 14, 70, "5. Cursor"
   defb AT, 16, 70, BRIGHT, 1, INK, 1, "6. Redefine Keys"
   defb AT, 17, 70, BRIGHT, 1, INK, 1, "7. View High Scores"
-  defb AT, 19, 85, BRIGHT, 1, INK, 7, "0. Start Game", 0
+  defb AT, 21, 70, BRIGHT, 1, INK, 7, "0. Start Game", 0
+
+sound_option_table
+
+  defw  str_sound_none
+  defw  str_sound_fx
+  defw  0x00
+  defw  str_sound_all
+
+str_sound_none
+
+  defb  AT, 19, 70, BRIGHT, 1, INK, 7, "9. Sound off    ", 0
+
+str_sound_fx
+
+  defb  AT, 19, 70, BRIGHT, 1, INK, 7, "9. Sound FX     ", 0
+
+str_sound_all
+
+  defb  AT, 19, 70, BRIGHT, 1, INK, 7, "9. Music+FX     ", 0
 
 str_main_menu_pun_table
 

@@ -2,6 +2,18 @@
 ; misc.asm
 ;
 
+init_misc
+
+  ld a, 1
+  ld hl, v_audio_options
+  ld (hl), a
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+  set 1, (hl)
+  ret
+
+
 init_controls
 
   ld hl, default_keys
@@ -865,6 +877,12 @@ play_music
   cp 0
   ret z
 
+; Don't play if music is currently off
+
+  ld a, (v_audio_options)
+  bit 1, a
+  ret z
+  
   call pagein_module
   ld hl, ay_player_init + 0x0a
   res 0, (hl)

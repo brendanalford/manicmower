@@ -18,6 +18,7 @@ init
   ld (v_128k_detected), a
 
   call init_print
+  call init_misc
   call init_controls
   call init_interrupts
 
@@ -217,7 +218,7 @@ ay_player_base
 
 ; Image and graphic assets
 
-  BLOCK 0xE400-$, 0x00
+  BLOCK 0xC000-$, 0x00
 
   include "assets.asm"
 

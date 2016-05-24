@@ -96,3 +96,4 @@ v_logo_attr_ptr			equ #fe73; 1	Low byte of pointer into logo attribute buffer
 v_player_active			equ #fe74; 1	Non-zero - AY playback active, zero = play nothing
 v_module_page				equ #fe75; 1	RAM page that contains the current AY module being played
 v_128k_detected			equ #fe76; 1	Nonzero if running on 128K spectrum, zero if 48k
+v_audio_options			equ #fe77; 1	Bitmap for audio options. Bit 0 - FX on/off. Bit 1 - Music On/off
