@@ -30,68 +30,18 @@ after_init
   call main_menu
   call cls
 
-  call set_game_controls
-
-  xor a
-  ld (v_level), a
-  call set_print_shadow_screen
-  call cls
-
-  call prepare_game
-  call prepare_level
-  call display_level
-
-  call set_print_main_screen
-  xor a
-  ld (v_attr), a
-  call cls
-
-  call copy_shadow_screen_pixels
-  call fade_in_shadow_screen_attrs
-
-  xor a
-  ld (v_mower_x_dir), a
-  ld (v_mower_y_dir), a
-
-  call set_print_main_screen
-
-; Initialises the in game music, which lives in RAM page 3.
-
-  ld hl, AY_TUNE_START
-  ld a, 3
-  call init_music
-  call restart_music
-
-  call main_loop
-
-  call fade_out_attrs
-
-  call mute_music
-
+  call gamemanager
+  
   jp after_init
 
-  include "game.asm"
+  include "gamemanager.asm"
+  include "maingame.asm"
   include "screen.asm"
   include "input.asm"
   include "levels.asm"
   include "misc.asm"
   include "mainmenu.asm"
 
-prepare_game
-
-  ld a, '0'
-  ld hl, v_score
-  ld b, 6
-
-init_score
-
-  ld (hl), a
-  inc hl
-  djnz init_score
-  xor a
-  ld (hl), a
-  ld (v_pending_score), a
-  ret
 
 init_interrupts
 

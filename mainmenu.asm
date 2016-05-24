@@ -13,9 +13,9 @@
 main_menu
 
 ; Init music Player
-; Main menu music lives in RAM page 0
+; Main menu music lives in RAM page 1
 
-  ld hl, AY_TUNE_START
+  ld hl, AY_MENU_TUNE
   ld a, 1
   call init_music
 

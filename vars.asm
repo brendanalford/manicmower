@@ -23,7 +23,26 @@
 	define	STATUS_HIT_DOG			0x4
 	define  STATUS_GAME_OVER		0xf
 
-	define 	AY_TUNE_START				0xC000
+	define 	AY_MENU_TUNE				0xC000
+	define 	AY_GAME_TUNE				0xDA00
+	define	AY_GAMEOVER_TUNE		0xF600
+
+;
+;	Values for v_game_end_reason
+;
+
+	define GAME_ABORTED					0x01
+	define GAME_OVER						0x02
+	define LEVEL_COMPLETE				0x03
+
+; Defines for page indexes of main and shadow screen, respectively
+
+	define MAIN_SCREEN_BYTES 	0x40
+	define MAIN_SCREEN_ATTR		0x58
+
+	define SHADOW_SCREEN_BYTES	0x65
+	define SHADOW_SCREEN_ATTR		0x7D
+
 
 ; Workspace areas
 
@@ -89,6 +108,7 @@ v_playerpause				equ #fe5f; 1	key used for Pause
 v_definekeys				equ #fe60; 5	Keys defined for keyboard option
 v_control_method 		equ #fe65; 1	Control type: 0 Keyboard, 1 Sinclair 1, 2 Sinclair 2, 3 Kempston, 4 Cursor
 v_controlbits				equ #fe66; 1	Control bitmap: xxxFUDLR
+v_game_end_reason		equ #fe67; 1	Reason for game end. See defines above
 
 v_scrolly_ptr				equ #fe70; 2	Current position of scrolly message
 v_scrolly_bits			equ #fe72; 1	Bits left before new character

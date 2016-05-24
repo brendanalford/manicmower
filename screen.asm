@@ -26,15 +26,6 @@
 	define	AT		23
 	define	WIDTH		24
 
-; Defines for page indexes of main and shadow screen, respectively
-
-	define MAIN_SCREEN_BYTES 	0x40
-	define MAIN_SCREEN_ATTR		0x58
-
-	define SHADOW_SCREEN_BYTES	0x65
-	define SHADOW_SCREEN_ATTR		0x7D
-
-
 ;
 ;	Initialises the printing routines
 ;

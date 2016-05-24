@@ -14,13 +14,25 @@ main_loop_2
 ; Break pressed to abort game?
 
   call check_break_pressed
-  jp c, main_loop_exit
+  jp nc, main_loop_3
+
+  ld a, GAME_ABORTED
+  ld (v_game_end_reason), a
+  jp main_loop_exit
+
+main_loop_3
 
 ; Are we done with the grass?
 
   ld a, (v_grass_left)
   cp 0
-  jp z, main_loop_exit
+  jp nz, main_loop_4
+
+  ld a, LEVEL_COMPLETE
+  ld (v_game_end_reason), a
+  jp main_loop_exit
+
+main_loop_4
 
   xor a
   ld (v_slow_movement), a
@@ -473,6 +485,9 @@ main_game_over_damage_loop_2
   ld bc, 100
   call delay_frames
   call mute_music
+
+  ld a, GAME_OVER
+  ld (v_game_end_reason), a
   ret
 
 ;
@@ -526,6 +541,8 @@ main_game_over_fuel_end
   ld bc, 100
   call delay_frames
   call mute_music
+  ld a, GAME_OVER
+  ld (v_game_end_reason), a
   ret
 
 ;
@@ -661,8 +678,6 @@ check_move_dog_can_move
   ld bc, level_buffer
   or a
   add hl, bc
-
-
 
 ; Mown grass?
 

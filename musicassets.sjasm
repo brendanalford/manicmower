@@ -1,0 +1,7 @@
+; SjASMPlus source file for Manic Mower
+
+  define ORG 49152
+  define LENGTH 16384
+  device zxspectrum48
+  include musicassets.asm
+  savebin "musicassets.bin",ORG,LENGTH
