@@ -2,14 +2,6 @@
 ; mainmenu.asm
 ;
 
-;
-; AY Module
-; Player loads to A200 (41472)
-; Tune loads to AA6E (43630)
-; Init: A200
-; Play: A205
-; Mute: A208
-;
 main_menu
 
 ; Init music Player

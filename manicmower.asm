@@ -7,6 +7,12 @@
 ; Title screen: Oh Crap it's almost the deadline
 ; Ingame: Ninja Milkman Conspiracy
 
+  LUA ALLPASS
+
+  sj.insert_define("BUILD_TIMESTAMP", '"' .. os.date("%d/%m/%Y %H:%M:%S") .. '"');
+
+  ENDLUA
+
   org 0x8000
   include "vars.asm"
 
@@ -22,6 +28,25 @@ init
   call init_controls
   call init_interrupts
 
+; Remove this before releasing
+
+  call cls
+  call set_proportional_font
+  ld hl, str_build_timestamp
+  call print
+
+  ld bc, 50
+
+init_loop
+
+  halt
+  call scan_keys
+  jr c, after_init
+  dec bc
+  ld a, b
+  or c
+  jr nz, init_loop
+
 after_init
 
   call cls
@@ -31,7 +56,7 @@ after_init
   call cls
 
   call gamemanager
-  
+
   jp after_init
 
   include "gamemanager.asm"
@@ -140,6 +165,10 @@ str_game_over_damage
 str_game_over_fuel
 
   defb AT, 22, 60, INK, 7, "You've run out of fuel!", 0
+
+str_build_timestamp
+
+  defb AT, 0, 0, INK, 7, "Dev version: ", BUILD_TIMESTAMP, 0
 
 ; Default keys
 

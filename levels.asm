@@ -369,6 +369,9 @@ prepare_dog_loop
   ld (v_mowerx), a
   ld a, 8
   ld (v_mowery), a
+
+; Prepare other game vars
+
   xor a
   ld (v_mower_x_moving), a
   ld (v_mower_y_moving), a
@@ -376,6 +379,14 @@ prepare_dog_loop
   ld (v_mower_y_dir), a
   ld (v_hit_solid), a
   ld (v_slow_movement), a
+
+  ld (v_game_end_reason), a
+  ld (v_mower_x_dir), a
+  ld (v_mower_y_dir), a
+
+  ld (v_dogs_hit), a
+  ld (v_gnomes_hit), a
+  ld (v_flowers_hit), a
 
 ; Set dog movement variables
 
@@ -385,6 +396,8 @@ prepare_dog_loop
   ld (v_dog_x_moving), a
   ld (v_dog_y_moving), a
 
+  ld de, level_buffer
+
 ; No grass at initial mower or dog location(s)
 
   ld a, (v_mowerx)
@@ -393,7 +406,9 @@ prepare_dog_loop
   ld h, a
 
   call calc_xy_to_hl
-  ld (hl), 0
+  or a
+  add hl, de
+  ld (hl), MOWN_GRASS
   ld ix, v_dogbuffer
 
 prepare_dog_patch
@@ -403,7 +418,10 @@ prepare_dog_patch
   or l
   jr z, prepare_misc
   call calc_xy_to_hl
-  ld (hl), 0
+  ld de, level_buffer
+  or a
+  add hl, de
+  ld (hl), MOWN_GRASS
   inc ix
   inc ix
   jr prepare_dog_patch
@@ -416,7 +434,7 @@ prepare_misc
   ld (v_dogs_hit), a
   ld (v_gnomes_hit), a
   ld (v_flowers_hit), a
-  
+
   ld a, 80
   ld (v_fuel), a
   ld a, 'a'

@@ -156,6 +156,9 @@ check_dog_collision_loop
   call remove_hit_dog
   call splatter
 
+  ld a, (v_dogs_hit)
+  inc a
+  ld (v_dogs_hit), a
   ld a, 4
   ld (v_hit_solid), a
   call add_damage
@@ -228,6 +231,11 @@ check_flower_collision
   ld a, STATUS_HIT_FLOWERS
   call display_status_message
 
+
+  ld a, (v_gnomes_hit)
+  inc a
+  ld (v_gnomes_hit), a
+  
 ; Move slowly through flowerbeds
 
   ld a, 1
@@ -280,6 +288,11 @@ check_gnome_collision
   ld a, 7
   ld (v_attr), a
   pop hl
+
+
+  ld a, (v_gnomes_hit)
+  inc a
+  ld (v_gnomes_hit), a
 
   ld a, 1
   ld (v_hit_solid), a
