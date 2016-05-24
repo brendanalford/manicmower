@@ -23,6 +23,8 @@
 	define	STATUS_HIT_DOG			0x4
 	define  STATUS_GAME_OVER		0xf
 
+	define 	AY_TUNE_START				0xC000
+
 ; Workspace areas
 
 pixel_row_buffer		equ #f800; 200
@@ -91,3 +93,6 @@ v_controlbits				equ #fe66; 1	Control bitmap: xxxFUDLR
 v_scrolly_ptr				equ #fe70; 2	Current position of scrolly message
 v_scrolly_bits			equ #fe72; 1	Bits left before new character
 v_logo_attr_ptr			equ #fe73; 1	Low byte of pointer into logo attribute buffer
+v_player_active			equ #fe74; 1	Non-zero - AY playback active, zero = play nothing
+v_module_page				equ #fe75; 1	RAM page that contains the current AY module being played
+v_128k_detected			equ #fe76; 1	Nonzero if running on 128K spectrum, zero if 48k

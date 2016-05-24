@@ -13,7 +13,10 @@
 main_menu
 
 ; Init music Player
-  ld hl, tune_main_menu
+; Main menu music lives in RAM page 0
+
+  ld hl, AY_TUNE_START
+  ld a, 1
   call init_music
 
   xor a
@@ -57,10 +60,11 @@ main_menu
 
   call display_current_control_method
 
+  call restart_music
+
 main_menu_loop
 
   halt
-  call play_music
 
   call move_logo_attrs
   call move_scrolly
@@ -95,7 +99,7 @@ menu_other_selection
 
 main_menu_done
 
-  call ay_player_mute
+  call mute_music
   ret
 
 main_menu_logo

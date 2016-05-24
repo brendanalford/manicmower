@@ -585,7 +585,6 @@ add_damage_loop
 ;
 splatter
 
-  di
   call calculate_mower_current_coords
   dec h
   ld a, 'o'
@@ -605,7 +604,6 @@ splatter
   inc l
   ld a, 'r'
   call splatter_main
-  ei
 
   ret
 
@@ -775,7 +773,6 @@ mower_sound_wall_collision
 
 main_sound_wall_collision_loop
 
-  di
   ld hl, bc
 
 main_sound_wall_collision_loop_1
@@ -796,7 +793,6 @@ main_sound_wall_collision_loop_2
   or l
   jr nz, main_sound_wall_collision_loop_1
 
-  ei
   ret
 
 ;
@@ -827,44 +823,108 @@ mower_set_pixel_position
 
 ;	AY Player constants
 
-	define ay_player_init   0xA200
-	define ay_player_play   0xA205
-	define ay_player_mute   0xA208
+	define ay_player_init   ay_player_base
+	define ay_player_play   ay_player_base + 0x05
+	define ay_player_mute   ay_player_base + 0x08
 
 ;
 ; Sets current music module to be played.
 ; Address of module should be in HL.
+; RAM page of module should be in A.
 ;
 
 init_music
 
+
+  ld (v_module_page), a
+
+; Do nothing if we're on a 48k
+
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+
+  halt
+  di
+  call pagein_module
   call ay_player_init + 3
+  call pageout_module
+  ei
   ret
 
 ;
-; Calls music player, preserving all registers.
+; Calls music player.
+; Assumes that RAM page 0 is to be paged in to C000-FFFF
+; on return.
 ;
 play_music
 
-  push hl
-  push de
-  push bc
-  push af
-  push ix
-  push iy
+; Do nothing if we're on a 48k
 
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+
+  call pagein_module
   ld hl, ay_player_init + 0x0a
   res 0, (hl)
   call ay_player_play
-
-  pop iy
-  pop ix
-  pop af
-  pop bc
-  pop de
-  pop hl
+  call pageout_module
   ret
 
 mute_music
 
-  jp ay_player_mute
+; Do nothing if we're on a 48k
+
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+
+  halt
+  di
+  call pagein_module
+  call ay_player_mute
+  call pageout_module
+  xor a
+  ld (v_player_active), a
+  ei
+  ret
+
+restart_music
+
+; Do nothing if we're on a 48k
+
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+
+  halt
+  di
+  ld a, 1
+  ld (v_player_active), a
+  ei
+  ret
+
+pageout_module
+
+  xor a
+  jp page_in_ram
+
+pagein_module
+
+  ld a, (v_module_page)
+;
+; Paging support
+; Pages in the RAM page in the accumulator
+; to the C000-FFFF area. All but bits 0x2
+; are masked off.
+;
+
+page_in_ram
+
+  and 0x7
+  push bc
+  ld bc, 0x7ffd
+  out (c), a
+  pop bc
+  ret

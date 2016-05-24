@@ -12,16 +12,16 @@
 
 init
 
+; Take 128K detection flag from loader
+
+  ld a, (25029)
+  ld (v_128k_detected), a
+
   call init_print
   call init_controls
+  call init_interrupts
 
 after_init
-
-;  call cls
-;  call set_fixed_font
-;  ld hl, str_text
-;  call print
-;  call get_key
 
   call cls
   call set_proportional_font
@@ -33,7 +33,6 @@ after_init
 
   xor a
   ld (v_level), a
-
   call set_print_shadow_screen
   call cls
 
@@ -55,20 +54,20 @@ after_init
 
   call set_print_main_screen
 
-  ld hl, tune_in_game
+; Initialises the in game music, which lives in RAM page 3.
+
+  ld hl, AY_TUNE_START
+  ld a, 3
   call init_music
+  call restart_music
 
   call main_loop
 
   call fade_out_attrs
 
-  call scan_keys
-  cp ' '
-  jr nz,after_init
+  call mute_music
 
-  call restore_basic_registers
-
-  ret
+  jp after_init
 
   include "game.asm"
   include "screen.asm"
@@ -93,17 +92,57 @@ init_score
   ld (v_pending_score), a
   ret
 
-;
-; Restores registers for a return to BASIC.
-;
+init_interrupts
 
-restore_basic_registers
+  di
+  ld a, intvec_table / 256
+  ld i, a
+  im 2
 
-  ld iy, 0x5c3a
-  exx
-  ld hl, 0x2758
-  exx
+; Set up AY player flag.
+
+  xor a
+  ld (v_player_active), a
+  ld (v_module_page), a
+  ei
   ret
+
+restore_interrupts
+
+  di
+  ld a, 0x3F
+  ld i, a
+  im 0
+  ei
+  ret
+
+interrupt_routine
+
+  push hl
+  push de
+  push bc
+  push af
+  push ix
+  push iy
+
+  ld a, (v_player_active)
+  cp 0
+  jr z, interrupt_routine_exit
+
+  call play_music
+
+interrupt_routine_exit
+
+  pop iy
+  pop ix
+  pop af
+  pop bc
+  pop de
+  pop hl
+
+  ei
+  reti
+
 ;
 ; Game text strings
 ;
@@ -151,47 +190,38 @@ str_game_over_fuel
 
   defb AT, 22, 60, INK, 7, "You've run out of fuel!", 0
 
-; Image and graphic assets
-
-  include "assets.asm"
-
 ; Default keys
 
 default_keys
 
   defb "QAOPH"
 
-;
-; Music. Relocate this.
-;
+  BLOCK 0xB500-$, 0x00
 
-  ;
-  ; AY Module
-  ; Player loads to A200 (41472)
-  ; Tune loads to AA6E (43630)
-  ; Init: A200
-  ; Play: A205
-  ; Mute: A208
-  ;
+  ; Interrupt vector table
 
-  BLOCK 0xA200-$, 0x00
+intvec_table
+
+  BLOCK 0xB601-$, 0xFF
+
+;
+; AY Module
+; Player loads to B700
+; Tune loads to C000 in relevant RAM page
+
+  BLOCK 0xB700-$, 0x00
+
+ay_player_base
 
   incbin "player.bin"
 
-  BLOCK 0xAA6E-$, 0x00
+; Image and graphic assets
 
-tune_main_menu
-
-  incbin "tune.bin"
-
-tune_in_game
-
- incbin "tune2.bin"
-
-; Game playfield is 32 x 18 (576 bytes)
-
-  BLOCK 0xE200-$, 0x00
   BLOCK 0xE400-$, 0x00
+
+  include "assets.asm"
+
+  BLOCK 0xEC00-$, 0x00
 
 ; Offset table for level data.
 ; Each level is to be found at (Level data + (2 * (level - 1)))
@@ -217,9 +247,6 @@ level_data
 ; Fuel x,y - position of fuel. 0000 denotes end
 ; Dog x,y - initial position of dog(s) in playfield. 0000 denotes end.
 
-
-  BLOCK 0xE480-$, 0x00
-
 level_1_data
 
   defb 3, 4, 2, 3, 4, 2, 2, 0, 2, 4, 5, 4, 4, 4
@@ -238,7 +265,7 @@ level_8_data
 level_9_data
 level_10_data
 
-  BLOCK 0xE900-$, 0x00
+  BLOCK 0xEE00-$, 0x00
 
 high_score_names
 
@@ -266,14 +293,23 @@ high_score_table
   defb "072500", 0
   defb "072500", 0
 
-  BLOCK 0xEB00-$, 0x00
+
+  BLOCK 0xF200-$, 0x00
 
 fixed_charset
 
   incbin "fixedchars.dat"
 
-  BLOCK 0xF000-$, 0x00
+  BLOCK 0xF500-$, 0x00
 
 proportional_charset
 
   incbin "proportional.dat"
+
+  BLOCK 0xFFF4-$, 0x00
+
+  jp interrupt_routine
+
+  BLOCK 0xFFFF-$, 0x00
+
+  defb 0x18
