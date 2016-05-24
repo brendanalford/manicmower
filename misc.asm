@@ -725,6 +725,10 @@ mower_sound_loop
 
 mower_sound_dog_collision
 
+  ld a, (v_audio_options)
+  bit 0, a
+  ret z
+
   push hl
   push de
   push bc
@@ -758,6 +762,10 @@ mower_sound_dog_collision_loop_inner
 
 mower_sound_gnome_collision
 
+  ld a, (v_audio_options)
+  bit 0, a
+  ret z
+
   push hl
   push bc
   ld hl, 0
@@ -780,6 +788,10 @@ mower_sound_gnome_collision_loop
   ret
 
 mower_sound_wall_collision
+
+  ld a, (v_audio_options)
+  bit 0, a
+  ret z
 
   ld bc, 0x80
 
@@ -882,7 +894,7 @@ play_music
   ld a, (v_audio_options)
   bit 1, a
   ret z
-  
+
   call pagein_module
   ld hl, ay_player_init + 0x0a
   res 0, (hl)

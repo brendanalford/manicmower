@@ -4,7 +4,12 @@
 main_loop
 
   call frame_halt
-  call mower_sound
+
+  ld a, (v_audio_options)
+  bit 0, a
+  call nz, mower_sound
+
+main_loop_2
 
 ; Break pressed to abort game?
 
@@ -310,7 +315,10 @@ mower_move
 
 mower_move_2
 
-  call mower_sound
+  ld a, (v_audio_options)
+  bit 0, a
+  call nz, mower_sound
+
   ld a, (v_slow_movement)
   cp 0
   jr z, mower_move_3
@@ -414,9 +422,16 @@ main_game_over_damage_loop
 
 main_game_over_damage_loop_1
 
+  ld a, (v_audio_options)
+  bit 0, a
+  jr z, main_game_over_damage_loop_1a
+
   ld a, (hl)
   and 0xf8
   out (0xfe), a
+
+main_game_over_damage_loop_1a
+
   push bc
   ld bc, 0x10
 
@@ -470,6 +485,10 @@ main_game_over_out_of_fuel
   ld a, STATUS_GAME_OVER
   call display_status_message
 
+  ld a, (v_audio_options)
+  bit 0, a
+  jr z, main_game_over_fuel_end
+
   ld d, 1
 
 main_game_over_fuel_loop
@@ -489,7 +508,9 @@ main_game_over_fuel_loop_3
 
   push bc
   push de
-  call mower_sound
+  ld a, (v_audio_options)
+  bit 0, a
+  call nz, mower_sound
   pop de
   pop bc
   djnz main_game_over_fuel_loop_2
@@ -499,6 +520,8 @@ main_game_over_fuel_loop_3
   jr nz, main_game_over_fuel_loop
 
 ; Delay 2 seconds or so
+
+main_game_over_fuel_end
 
   ld bc, 100
   call delay_frames

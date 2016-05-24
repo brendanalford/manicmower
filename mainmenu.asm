@@ -78,7 +78,7 @@ main_menu_loop
   jr z, main_menu_done
 
   cp '9'
-  jr modify_sound_options
+  jr z, modify_sound_options
 
   cp '1'
   jr c, main_menu_loop
@@ -126,6 +126,13 @@ modify_sound_options_2
   ld (v_audio_options), a
   call display_current_sound_option
 
+; Consider impact on music if playing
+
+  ld a, (v_audio_options)
+  bit 1, a
+  call z, mute_music
+  call nz, restart_music
+
 modify_sound_options_3
 
   halt
@@ -133,13 +140,6 @@ modify_sound_options_3
   call move_scrolly
   call scan_keys
   jr c, modify_sound_options_3
-
-; Consider impact on music if playing
-
-  ld a, (v_audio_options)
-  bit 1, a
-  call z, mute_music
-  call nz, restart_music
 
   jr main_menu_loop
 
