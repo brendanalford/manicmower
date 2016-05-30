@@ -23,10 +23,16 @@
 	define	STATUS_HIT_DOG			0x4
 	define  STATUS_GAME_OVER		0xf
 
-	define 	AY_MENU_TUNE				0xC000
-	define 	AY_GAME_TUNE				0xDA00
-	define	AY_GAMEOVER_TUNE		0xF600
+;	Location of AY modules in RAM page 1
 
+	define 	AY_MENU_TUNE						0xC000
+	define 	AY_GAME_TUNE						0xDA00
+	define	AY_GAMEOVER_TUNE				0xF600
+
+;	Location of AY modules in RAM page 3
+
+	define 	AY_LEVEL_COMPLETE_TUNE	0xC000
+	define	AY_HIGH_SCORE_TUNE			0xC800
 ;
 ;	Values for v_game_end_reason
 ;

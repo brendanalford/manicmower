@@ -710,7 +710,8 @@ remove_hit_dog_done
 mower_sound
 
   push bc
-  ld a, 0x11
+  ld a, 0x10
+  ;ld a, 0x11
   out (0xfe), a
   ld b, 0x10
 
@@ -718,7 +719,8 @@ mower_sound_loop
 
   djnz mower_sound_loop
 
-  ld a, 0x1
+  xor a
+;  ld a, 0x1
   out (0xfe), a
   pop bc
   ret

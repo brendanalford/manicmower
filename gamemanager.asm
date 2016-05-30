@@ -124,10 +124,10 @@ display_game_over_logo
 
 gamemanager_level_complete
 
-;  ld hl, AY_GAMEOVER_TUNE
-;  ld a, 1
-;  call init_music
-;  call restart_music
+  ld hl, AY_LEVEL_COMPLETE_TUNE
+  ld a, 3
+  call init_music
+  call restart_music
 
   xor a
   ld (v_attr), a
@@ -138,6 +138,8 @@ gamemanager_level_complete
   call display_level_complete
 
   call get_key
+
+  call mute_music
   ret
 
 display_level_complete

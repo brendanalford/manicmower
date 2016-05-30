@@ -235,7 +235,7 @@ check_flower_collision
   ld a, (v_gnomes_hit)
   inc a
   ld (v_gnomes_hit), a
-  
+
 ; Move slowly through flowerbeds
 
   ld a, 1
@@ -374,8 +374,8 @@ mower_move_4
 main_loop_end
 
   call increment_score
-  ld a, 2
-  out (0xfe), a
+  ; ld a, 2
+  ; out (0xfe), a
 
   call survey_grass
   call handle_status
@@ -586,8 +586,8 @@ check_move_dog_2
 
 check_move_dog_found
 
-  ld a, %01010000
-  ld (0x5ae0), a
+;  ld a, %01010000
+;  ld (0x5ae0), a
 
   xor a
   ld (v_dog_x_dir), a
@@ -731,8 +731,8 @@ check_move_dog_can_move
 
 ; All vars set, the main loop will handle this from now on
 
-  ld a, %01100000
-  ld (0x5ae0), a
+;  ld a, %01100000
+;  ld (0x5ae0), a
 
   ret
 
