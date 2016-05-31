@@ -21,6 +21,8 @@
 	define 	STATUS_HIT_GNOME		0x2
 	define	STATUS_HIT_FLOWERS	0x3
 	define	STATUS_HIT_DOG			0x4
+	define	STATUS_LEVEL_START	0xd
+	define	STATUS_LEVEL_DONE		0xe
 	define  STATUS_GAME_OVER		0xf
 
 ;	Location of AY modules in RAM page 1
@@ -123,3 +125,4 @@ v_player_active			equ #fe74; 1	Non-zero - AY playback active, zero = play nothin
 v_module_page				equ #fe75; 1	RAM page that contains the current AY module being played
 v_128k_detected			equ #fe76; 1	Nonzero if running on 128K spectrum, zero if 48k
 v_audio_options			equ #fe77; 1	Bitmap for audio options. Bit 0 - FX on/off. Bit 1 - Music On/off
+v_isr_location			equ #fe78; 2	Interrupt routine to be called after normal IM2 operation, zero if disabled

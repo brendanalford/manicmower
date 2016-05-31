@@ -4,6 +4,9 @@
 
 init_misc
 
+  ld hl, 0
+  ld (v_isr_location), hl
+  
   ld a, 1
   ld hl, v_audio_options
   ld (hl), a
@@ -945,6 +948,7 @@ pageout_module
 pagein_module
 
   ld a, (v_module_page)
+
 ;
 ; Paging support
 ; Pages in the RAM page in the accumulator

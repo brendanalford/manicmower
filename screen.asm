@@ -1460,6 +1460,87 @@ newline_done
 	pop af
 	ret
 
+;
+;	Progressively wipes screen from the line given in H, to the line
+; given in L. Shows a dotted line indicating the line being wiped.
+;
+screen_wipe
+
+	push hl
+
+	;	Now find the address in the frame buffer to be written.
+
+	ld a, h
+	call get_pixel_address_line
+	push hl
+	pop de
+	inc de
+	xor a
+	ld (hl), a
+	ld bc, 0x1f
+	ldir
+
+	pop hl
+	push hl
+
+	ld a, h
+	cp l
+	jr z, screen_wipe_done
+
+	ld a, h
+	inc a
+	call get_pixel_address_line
+	push hl
+	pop de
+	inc de
+	ld a, 0xAA
+	ld (hl), a
+	ld bc, 0x1f
+	ldir
+
+	pop hl
+	bit 0, h
+	jr nz, screen_wipe_2
+
+	halt
+
+screen_wipe_2
+
+	inc h
+	jr screen_wipe
+
+screen_wipe_done
+
+	pop hl
+	ret
+
+
+;
+;	Given a row pixel index in A, returns the screen address
+; of the start of that line. Only considers main screen.
+;
+
+get_pixel_address_line
+
+	push bc
+	ld b, a
+	and 0x07
+	or 0x40
+	ld h, a
+	ld a, b
+	rra
+	rra
+	rra
+	and 0x18
+	or h
+	ld h, a
+	ld a, b
+	rla
+	rla
+	and 0xe0
+	ld l, a
+	pop bc
+	ret
 
 mask_bits
 

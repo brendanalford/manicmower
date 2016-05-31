@@ -5,17 +5,16 @@
 
 gamemanager
 
+  xor a
+  ld (v_level), a
   call prepare_game
   call set_game_controls
 
 gamemaanger_prep_level
 
-  xor a
-  ld (v_level), a
   call set_print_shadow_screen
   call cls
 
-  call prepare_game
   call prepare_level
   call display_level
 
@@ -34,6 +33,12 @@ gamemaanger_prep_level
   ld a, 1
   call init_music
   call restart_music
+
+; Set the initial level status message
+
+  ld hl, str_level_begin
+  ld a, STATUS_LEVEL_START
+  call display_status_message
 
   call main_loop
   call fade_out_attrs
@@ -140,6 +145,23 @@ gamemanager_level_complete
   call get_key
 
   call mute_music
+
+; Increment current level
+; TODO: Handle all levels complete
+
+  ld a, (v_level)
+  inc a
+  cp 8
+  jr nz, gamemanager_game_incomplete
+
+; Back to the start. Poor suckers.
+
+  xor a
+
+gamemanager_game_incomplete
+
+  ld (v_level), a
+
   ret
 
 display_level_complete

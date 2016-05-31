@@ -453,6 +453,13 @@ prepare_misc
   ld (v_status_msg), a
   ld (v_status_delay), a
 
+; Set level start message index
+
+  ld hl, str_level_index
+  ld a, (v_level)
+  add '1'
+  ld (hl), a
+
   call survey_grass
   call display_score
 

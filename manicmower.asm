@@ -100,6 +100,10 @@ interrupt_routine
   push af
   push ix
   push iy
+  exx
+  push hl
+  push de
+  push bc
 
   ld a, (v_player_active)
   cp 0
@@ -107,8 +111,23 @@ interrupt_routine
 
   call play_music
 
+  ld hl, (v_isr_location)
+  ld a, h
+  or l
+  jr z, interrupt_routine_exit
+
+  ld de, hl
+  ld hl, interrupt_routine_exit
+  push hl
+  ld hl, de
+  jp hl
+
 interrupt_routine_exit
 
+  pop hl
+  pop de
+  pop bc
+  exx
   pop iy
   pop ix
   pop af
@@ -157,6 +176,14 @@ str_hit_flowers
 str_hit_dog
 
   defb AT, 22, 24, INK, 2, BRIGHT, 1, "Rover gets a short back and sides!", 0
+
+str_level_begin
+
+  defb AT, 22, 60, INK, 7, "Get ready for lawn "
+
+str_level_index
+
+  defb "X !", 0
 
 str_game_over_damage
 

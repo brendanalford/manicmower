@@ -55,12 +55,14 @@ main_menu
 
   call restart_music
 
+  di
+  ld hl, main_menu_isr
+  ld (v_isr_location), hl
+  ei
+
 main_menu_loop
 
   halt
-
-  call move_logo_attrs
-  call move_scrolly
   xor a
   out (0xfe), a
   call scan_keys
@@ -88,6 +90,9 @@ main_menu_loop
   jr main_menu_loop
 
 menu_other_selection
+
+  cp '6'
+  call z, redefine_keys
 
   jr main_menu_loop
 
@@ -128,8 +133,9 @@ modify_sound_options_2
 modify_sound_options_3
 
   halt
-  call move_logo_attrs
-  call move_scrolly
+
+; ISR will move scrolly and logo attrs
+
   call scan_keys
   jr c, modify_sound_options_3
 
@@ -140,6 +146,19 @@ modify_sound_options_3
 main_menu_done
 
   call mute_music
+  di
+  ld hl, 0
+  ld (v_isr_location), hl
+  ei
+  ret
+
+;
+; Called from ISR
+;
+main_menu_isr
+
+  call move_logo_attrs
+  call move_scrolly
   ret
 
 main_menu_logo
@@ -206,9 +225,6 @@ move_logo_attrs_2
   inc de
   inc l
   djnz move_logo_attrs_2
-
-
-  ;ldir
 
   pop bc
   inc c
@@ -348,6 +364,31 @@ display_current_sound_option
   call print
   ret
 
+;
+; Redefine keys
+;
+
+redefine_keys
+
+  ld hl, 0x38B7;  Wipe lines 56-191, leaving logo intact
+  call screen_wipe
+
+  di
+  ld hl, 0
+  ld (v_isr_location), hl
+  ei
+
+  ld hl, str_redefine_keys
+  call print
+
+  di
+  ld hl, main_menu_isr
+  ld (v_isr_location), hl
+  ei
+
+  call get_key
+  ret
+
 str_main_menu_options
 
   defb AT, 10, 70, INK, 6, BRIGHT, 0, "1. Keyboard ("
@@ -436,3 +477,16 @@ str_scrolly_message
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...   "
   defb "Damage to your mower will need to be repaired before tackling the next lawn...                            "
   defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...   ++++   ", 0
+
+str_redefine_keys
+
+  defb AT, 8, 80, INK, 7, BRIGHT, 1, "REDEFINE KEYS"
+  defb AT, 11, 90, INK, 6, BRIGHT, 1, "Up........."
+  defb AT, 12, 90, "Down...."
+  defb AT, 13, 90, "Left......"
+  defb AT, 14, 90, "Right...."
+  defb AT, 15, 90, "Pause..", 0
+
+str_keys_ok
+
+  defb AT, 17, 50, "Are these keys ok? (y/n)", 0
