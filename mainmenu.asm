@@ -25,20 +25,7 @@ main_menu
   ld bc, 5
   ldir
 
-; Choose an inspiring saying (groan)
-
-  ld a, r
-  and 0x7
-  add a
-  ld c, a
-  xor a
-  ld b, a
-  ld hl, str_main_menu_pun_table
-  or a
-  add hl, bc
-  ld bc, (hl)
-  ld hl, bc
-  call print
+  call display_pun
 
   ld hl, str_main_menu_options
   call print
@@ -93,6 +80,8 @@ menu_other_selection
 
   cp '6'
   call z, redefine_keys
+  cp '7'
+  call z, show_high_score_table
 
   jr main_menu_loop
 
@@ -159,6 +148,25 @@ main_menu_isr
 
   call move_logo_attrs
   call move_scrolly
+  ret
+
+;
+; Choose an inspiring saying (most pretty groanworthy)
+;
+display_pun
+
+  ld a, r
+  and 0x7
+  add a
+  ld c, a
+  xor a
+  ld b, a
+  ld hl, str_main_menu_pun_table
+  or a
+  add hl, bc
+  ld bc, (hl)
+  ld hl, bc
+  call print
   ret
 
 main_menu_logo
@@ -373,20 +381,204 @@ redefine_keys
   ld hl, 0x38B7;  Wipe lines 56-191, leaving logo intact
   call screen_wipe
 
-  di
-  ld hl, 0
-  ld (v_isr_location), hl
-  ei
+  call disable_main_menu_isr
 
   ld hl, str_redefine_keys
   call print
+
+  ; call set_fixed_font
+  ; ld hl, str_text
+  ; call print
+  ; call set_proportional_font
+
+  call set_main_menu_isr
+
+; Erase the currently defined keys so no conflict
+
+  ld hl, v_definekeys
+  ld de, v_definekeys + 1
+  ld bc, 4
+  xor a
+  ld (hl), a
+
+  ld ix, v_definekeys
+  ld bc, 0
+
+redefine_keys_loop
+
+  halt
+
+  call set_fixed_font
+
+  inc c
+  ld a, c
+  sra a
+  sra a
+  sra a
+  and 0x3
+  cp 0
+  jr z, redefine_keys_cursor_blank
+  cp 1
+  jr z, redefine_keys_cursor_half
+  ld a, 'n'
+  jr redefine_keys_loop_2
+
+redefine_keys_cursor_blank
+
+  ld a, ' '
+  jr redefine_keys_loop_2
+
+redefine_keys_cursor_half
+
+  ld a, 'm'
+
+redefine_keys_loop_2
+
+  push af
+  ld a, b
+  or a
+  add 11
+  ld (v_row), a
+  ld a, 150
+  ld (v_column), a
+  ld a, %01000110
+  ld (v_attr), a
+  pop af
+  call putchar
+  call set_proportional_font
+
+  call scan_keys
+  jr nc, redefine_keys_loop
+  ld (v_curdefkey), a
+
+; Check to see if we've used this one before
+
+  ld hl, v_definekeys
+
+redefine_keys_check_loop
+
+  ld a, h
+  cp ixh
+  jr nz, redefine_keys_check_loop_2
+  ld a, l
+  cp ixl
+  jr nz, redefine_keys_check_loop_2
+
+; Current cursor reached, we're good, no duplicates
+
+  jr redefine_keys_check_ok
+
+redefine_keys_check_loop_2
+
+; If key matches something else in the buffer, ignore it and loop back
+; for another keypress
+
+  ld a, (v_curdefkey)
+  cp (hl)
+  jr z, redefine_keys_loop
+  inc hl
+  jr redefine_keys_check_loop
+
+redefine_keys_check_ok
+
+  ld a, (v_curdefkey)
+  ld (ix), a
+  call putchar
+
+redefine_keys_release_key
+
+  call scan_keys
+  jr c, redefine_keys_release_key
+
+  inc ix
+  inc b
+  ld a, b
+  cp 5
+  jr nz, redefine_keys_loop
+
+; Store keys just defined in screen message area
+
+  ld hl, v_definekeys
+  ld de, str_main_menu_keys
+  ld bc, 5
+  ldir
+
+
+; Confirm if the keys are ok
+
+  call disable_main_menu_isr
+  ld hl, str_keys_ok
+  call print
+  call set_main_menu_isr
+
+redefine_keys_confirm
+
+  call get_key
+  cp 'N'
+  jp z, redefine_keys
+  cp 'Y'
+  jr z, redefine_keys_done
+  jr redefine_keys_confirm
+
+redefine_keys_done
+
+  ld hl, 0x38B7
+  call screen_wipe
+
+  call disable_main_menu_isr
+
+  call display_pun
+  ld hl, str_main_menu_options
+  call print
+  call display_current_control_method
+  call display_current_sound_option
+
+  call set_main_menu_isr
+
+  ret
+
+show_high_score_table
+
+  ld hl, 0x38B7;  Wipe lines 56-191, leaving logo intact
+  call screen_wipe
+
+  call disable_main_menu_isr
+
+  ld hl, str_high_score_title
+  call print
+  call set_main_menu_isr
+
+  call get_key
+
+  ld hl, 0x38B7
+  call screen_wipe
+
+  call disable_main_menu_isr
+
+  call display_pun
+  ld hl, str_main_menu_options
+  call print
+  call display_current_control_method
+  call display_current_sound_option
+
+  call set_main_menu_isr
+  ret
+
+
+set_main_menu_isr
 
   di
   ld hl, main_menu_isr
   ld (v_isr_location), hl
   ei
+  ret
 
-  call get_key
+disable_main_menu_isr
+
+  di
+  ld hl, 0
+  ld (v_isr_location), hl
+  ei
   ret
 
 str_main_menu_options
@@ -401,9 +593,9 @@ str_main_menu_keys
   defb AT, 12, 70, "3. Sinclair 2"
   defb AT, 13, 70, "4. Kempston"
   defb AT, 14, 70, "5. Cursor"
-  defb AT, 16, 70, BRIGHT, 1, INK, 1, "6. Redefine Keys"
-  defb AT, 17, 70, BRIGHT, 1, INK, 1, "7. View High Scores"
-  defb AT, 21, 70, BRIGHT, 1, INK, 7, "0. Start Game", 0
+  defb AT, 16, 70, BRIGHT, 1, INK, 7, "6. Redefine Keys"
+  defb AT, 17, 70, "7. View High Scores"
+  defb AT, 21, 70, "0. Start Game", 0
 
 sound_option_table
 
@@ -449,7 +641,7 @@ str_main_menu_pun_3
 
 str_main_menu_pun_4
 
-  defb AT, 7, 76, INK, 4, "Your ass is grass", 0
+  defb AT, 7, 50, INK, 4, "a.k.a. Gasman Music Demo", 0
 
 str_main_menu_pun_5
 
@@ -490,3 +682,8 @@ str_redefine_keys
 str_keys_ok
 
   defb AT, 17, 50, "Are these keys ok? (y/n)", 0
+
+str_high_score_title
+
+  defb AT, 8, 70, INK, 2, BRIGHT, 1, "H ", INK, 3, "I ", INK, 4, "G ", INK, 5, "H   "
+  defb INK, 6, "S ", INK, 7, "C ", INK, 2, "O ", INK, 3, "R ", INK, 4, "E ", INK, 5, "S", 0

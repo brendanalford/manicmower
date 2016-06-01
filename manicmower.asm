@@ -6,6 +6,8 @@
 ; Music by Gasman
 ; Title screen: Oh Crap it's almost the deadline
 ; Ingame: Ninja Milkman Conspiracy
+; Level Complete: Fanfare
+; High Score: Decadent Stardust
 
   LUA ALLPASS
 
