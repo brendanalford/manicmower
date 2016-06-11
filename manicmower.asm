@@ -109,9 +109,11 @@ interrupt_routine
 
   ld a, (v_player_active)
   cp 0
-  jr z, interrupt_routine_exit
+  jr z, interrupt_routine_check_custom_isr
 
   call play_music
+
+interrupt_routine_check_custom_isr
 
   ld hl, (v_isr_location)
   ld a, h
@@ -278,29 +280,30 @@ level_10_data
 
 high_score_names
 
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
-  defb "Test                           ", 0
+  defb "1. ", TAB, 20, INK, 5, "Hold on to the thread",0,"          ", 0
+  defb "2. ", TAB, 20, INK, 5, "The currents will shift",0,"        ", 0
+  defb "3. ", TAB, 20, INK, 5, "Guide me towards you",0,"           ", 0
+  defb "4. ", TAB, 20, INK, 5, "Know something's left",0,"          ", 0
+  defb "5. ", TAB, 20, INK, 5, "And we're allowed to dream",0,"     ", 0
+  defb "6. ", TAB, 20, INK, 5, "Of the next time we touch",0,"      ", 0
+  defb "7. ", TAB, 20, INK, 5, "You don't have to stray",0,"        ", 0
+  defb "8. ", TAB, 20, INK, 5, "The oceans away",0,"                ", 0
+  defb "9. ", TAB, 20, INK, 5, "Waves roll in my thoughts",0,"      ", 0
+  defb "10.", TAB, 20, INK, 5, "Hold tight the ring",0,"            ", 0
+
 
 high_score_table
 
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
-  defb "072500", 0
+  defb "025000", 0, 0
+  defb "020000", 0, 0
+  defb "015000", 0, 0
+  defb "010000", 0, 0
+  defb "007500", 0, 0
+  defb "005000", 0, 0
+  defb "004000", 0, 0
+  defb "003000", 0, 0
+  defb "002000", 0, 0
+  defb "001000", 0, 0
 
 
   BLOCK 0xF200-$, 0x00

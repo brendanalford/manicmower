@@ -109,8 +109,10 @@ modify_sound_options_1
 
 modify_sound_options_2
 
+  call disable_main_menu_isr
   ld (v_audio_options), a
   call display_current_sound_option
+  call set_main_menu_isr
 
 ; Consider impact on music if playing
 
@@ -546,6 +548,56 @@ show_high_score_table
 
   ld hl, str_high_score_title
   call print
+
+  ld b, 10
+  ld a, b
+  dec a
+  ld (v_row), a
+  ld ix, high_score_names
+  ld iy, high_score_table
+
+high_score_names_loop
+
+  push bc
+  push ix
+  push iy
+
+  xor a
+  ld (v_column), a
+  ld hl, ix
+  ld a, %01000110
+  ld (v_attr), a
+  call print
+
+  ld a, %01000110
+  ld (v_attr), a
+  
+  call set_fixed_font
+  ld a, 26 * 8
+  ld (v_column), a
+  ld hl, iy
+  call print
+  call set_proportional_font
+
+  pop iy
+  pop ix
+  or a
+  ld bc, 40
+  ld hl, ix
+  add hl, bc
+  ld ix, hl
+
+  ld bc, 8
+  ld hl, iy
+  add hl, bc
+  ld iy, hl
+
+  pop bc
+  djnz high_score_names_loop
+
+  ld hl, str_high_score_any_key
+  call print
+
   call set_main_menu_isr
 
   call get_key
@@ -685,5 +737,9 @@ str_keys_ok
 
 str_high_score_title
 
-  defb AT, 8, 70, INK, 2, BRIGHT, 1, "H ", INK, 3, "I ", INK, 4, "G ", INK, 5, "H   "
+  defb AT, 7, 70, INK, 2, BRIGHT, 1, "H ", INK, 3, "I ", INK, 4, "G ", INK, 5, "H   "
   defb INK, 6, "S ", INK, 7, "C ", INK, 2, "O ", INK, 3, "R ", INK, 4, "E ", INK, 5, "S", 0
+
+str_high_score_any_key
+
+  defb AT, 21, 80, INK, 5, "Press any key.", 0
