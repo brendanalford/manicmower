@@ -127,3 +127,12 @@ v_module_page				equ #fe75; 1	RAM page that contains the current AY module being
 v_128k_detected			equ #fe76; 1	Nonzero if running on 128K spectrum, zero if 48k
 v_audio_options			equ #fe77; 1	Bitmap for audio options. Bit 0 - FX on/off. Bit 1 - Music On/off
 v_isr_location			equ #fe78; 2	Interrupt routine to be called after normal IM2 operation, zero if disabled
+
+v_buffer						equ #fe80; 16	General purpose buffer
+
+v_lvc_time_bonus		equ #fe90; 2	Level complete time bonus earned
+v_lvc_wages					equ #fe92; 2	Wages earned after level
+v_lvc_glue					equ #fe94; 2	Glue cost to stick gnomes
+v_lvc_repair				equ #fe96; 2	Mower repair cost
+v_lvc_cash_bonus		equ #fe98; 2	Cash in hand after all costs
+v_lvc_total_bonus		equ #fe9a; 2	Total score bonus after level

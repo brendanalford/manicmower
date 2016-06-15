@@ -1364,6 +1364,53 @@ Num2D
 	ret
 
 ;
+;	Prints a 16-bit decimal number to the buffer pointed to by DE,
+; with no trailing zeroes.
+; Inputs: HL=number to print
+;
+Num2Dec_NoTrail
+
+	push de
+	call Num2Dec
+	pop de
+
+;	Assume return is of the form 00000, terminate in buffer with 0x00
+
+	ld ix, de
+	xor a
+	ld (ix+5), a
+
+; Start truncating zeroes
+
+Num2Dec_Truncate
+
+; Check if what follows this digit is a null terminator. If so,
+; we're on the last digit and shouldn't truncate further.
+
+	ld a, (ix+1)
+	cp 0
+	jr z, Num2Dec_End
+
+;	Check if the current character is an ASCII zero
+
+	ld a, (ix)
+	cp '0'
+	jr nz, Num2Dec_End
+
+; Leading zero, truncate
+
+	ld hl, ix
+	ld de, hl
+	inc hl
+	ld bc, 5
+	ldir
+	jr Num2Dec_Truncate
+
+Num2Dec_End
+
+	ret
+
+;
 ;	Checks to see if printing a string will overwrite the end of the line;
 ;	if so, it will advance the print position to the start of the next line.
 ;	Inputs: A=length of string to be printed in pixels.

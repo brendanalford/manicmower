@@ -233,9 +233,9 @@ check_flower_collision
   call display_status_message
 
 
-  ld a, (v_gnomes_hit)
+  ld a, (v_flowers_hit)
   inc a
-  ld (v_gnomes_hit), a
+  ld (v_flowers_hit), a
 
 ; Move slowly through flowerbeds
 

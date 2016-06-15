@@ -20,12 +20,9 @@
 
 init
 
-; Take 128K detection flag from loader
-
-  ld a, (25029)
-  ld (v_128k_detected), a
-
+  di
   call init_print
+  call init_paging
   call init_misc
   call init_controls
   call init_interrupts
@@ -51,6 +48,8 @@ init_loop
 
 after_init
 
+; End remove before release
+
   call cls
   call set_proportional_font
 
@@ -61,9 +60,9 @@ after_init
 
   jp after_init
 
-  include "screen.asm"
   include "gamemanager.asm"
   include "maingame.asm"
+  include "screen.asm"
   include "input.asm"
   include "levels.asm"
   include "misc.asm"
@@ -76,6 +75,12 @@ init_interrupts
   ld a, intvec_table / 256
   ld i, a
   im 2
+
+; Set JR at 0xFFFF
+
+  ld a, 0x18
+  ld hl, 0xFFFF
+  ld (hl), a
 
 ; Set up AY player flag.
 
@@ -151,10 +156,6 @@ str_text
   defb "Manic Mower\n"
   defb "THE QUICK BROWN FOX JUMPS OVER\nTHE LAZY DOG\n"
   defb "0123456789\na b c d e f g h i j k l\nm n o p q r s t u v w x y z\n",0
-
-str_wait
-
-  defb AT, 23, 0,  "Press any key to commence demo...\n", 0
 
 str_status
 
@@ -289,7 +290,8 @@ high_score_names
   defb "7. ", TAB, 20, INK, 5, "You don't have to stray",0,"        ", 0
   defb "8. ", TAB, 20, INK, 5, "The oceans away",0,"                ", 0
   defb "9. ", TAB, 20, INK, 5, "Waves roll in my thoughts",0,"      ", 0
-  defb "10.", TAB, 20, INK, 5, "Hold tight the ring",0,"            ", 0
+  defb "10.", TAB, 20, INK, 5, "Hold tight the ring.....",0,"       ", 0
+
 
 
 high_score_table
