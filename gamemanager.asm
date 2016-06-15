@@ -129,6 +129,7 @@ display_game_over_logo
 
 gamemanager_level_complete
 
+
   ld hl, AY_LEVEL_COMPLETE_TUNE
   ld a, 3
   call init_music
@@ -142,7 +143,6 @@ gamemanager_level_complete
 
   call display_level_complete
 
-  call set_print_main_screen
   call set_proportional_font
 
 ; Work out our time bonus
@@ -186,10 +186,11 @@ gamemanager_lvc_calc_time_2
   ld hl, str_level_complete_tab
   call print
 
+
 ; Calculate time bonus and print it
 
   ld hl, 0
-  ld bc, 200
+  ld bc, 100
   ld de, (v_lvc_time_bonus)
 
 gamemanager_lvc_calc_time_bonus
@@ -311,7 +312,6 @@ gamemanager_lvc_check_rover
 
   ld de, hl
   pop hl
-  push bc
   or a
   add hl, hl
   add hl, hl
@@ -430,9 +430,16 @@ gamemanager_lvc_do_totals
   ld hl, str_level_complete_any_key
   call print
 
-  call get_key
+  call copy_shadow_screen_pixels
+  call fade_in_attrs
 
+  call set_print_main_screen
+
+  call get_key
+  call fade_out_attrs
   call mute_music
+
+  call add_bonus_to_score
 
 ; Increment current level
 ; TODO: Handle all levels complete
@@ -452,6 +459,10 @@ gamemanager_game_incomplete
 
   ret
 
+;
+; Displays Level Complete logo on the shadow screen
+; ready for fade in.
+;
 display_level_complete
 
   ld hl, img_level_complete
@@ -467,8 +478,6 @@ display_level_complete
   ld (hl), a
   ldir
 
-  call copy_shadow_screen_pixels
-  call fade_in_attrs
   ret
 
 ;
@@ -500,6 +509,35 @@ display_and_subtract_cost
   ld (v_lvc_wages), hl
   ret
 
+;
+; Adds accrued bonus in v_lvc_total_bonus to the
+; score.
+; Doing it this was as it's easier to allow the
+; game to work and increment in pure ASCII to
+; save speed.
+;
+add_bonus_to_score
+
+  ld hl, (v_lvc_total_bonus)
+  ld a, h
+  or l
+  ret z
+  dec hl
+  ld (v_lvc_total_bonus), hl
+  ld hl, v_score + 5
+
+add_bonus_to_score_loop
+
+  inc (hl)
+  ld a, (hl)
+  cp '9' + 1
+  jr nz, add_bonus_to_score
+  ld a, '0'
+  ld (hl), a
+  dec hl
+  jr add_bonus_to_score_loop
+
+
 prepare_game
 
   xor a
@@ -518,7 +556,7 @@ init_score
   ld (v_pending_score), a
   ret
 
-  define LVC_TAB    20
+  define LVC_TAB    28
 
 str_time_bonus
 
@@ -526,7 +564,7 @@ str_time_bonus
 
 str_time_bonus_2
 
-  defb " x 200", 0
+  defb " x 100", 0
 
 str_wages_earned
 
@@ -574,7 +612,7 @@ str_level_complete_any_key
 
 str_level_complete_tab
 
-  defb TAB, 180, 0
+  defb TAB, 188, 0
 
 str_pound
 
