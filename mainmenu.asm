@@ -35,6 +35,8 @@ main_menu
   call copy_shadow_screen_pixels
   call fade_in_attrs
 
+  ld hl, str_scrolly_message
+  ld a, %01000111
   call init_scrolly
   call init_logo_attrs
 
@@ -244,94 +246,6 @@ move_logo_attrs_2
   inc (hl)
   ret
 
-init_scrolly
-
-  ld hl, 0x5ae0
-  ld de, 0x5ae1
-  ld bc, 31
-  ld a, %01000111
-  ld (hl), a
-  ldir
-
-  ld hl, str_scrolly_message
-  ld (v_scrolly_ptr), hl
-  xor a
-  ld (v_scrolly_bits), a
-  ld (0x5aff), a
-  ret
-
-move_scrolly
-
-  ld a, (v_scrolly_bits)
-  cp 0
-  jr nz, move_scrolly_2
-
-; New character found
-
-  ld a, 23
-  ld (v_row), a
-  ld a, 31
-  ld (v_column), a
-
-  ld ix, (v_scrolly_ptr)
-  ld b, (ix)
-  ld a, (ix + 1)
-  inc ix
-  cp 0
-  ld (v_scrolly_ptr), ix
-  jr nz, move_scrolly_prchar
-
-  ld hl, str_scrolly_message
-  ld (v_scrolly_ptr), hl
-
-move_scrolly_prchar
-
-  ld a, ATTR_TRANS
-  ld (v_attr), a
-  ld a, b
-  push af
-  call putchar_8
-  pop af
-
-  ld hl, proportional_data
-  ld c, a
-  ld b, 0
-  or a
-  add hl, bc
-  ld a, (hl)
-  ld (v_scrolly_bits), a
-  ld a, 7
-  ld (v_attr), a
-
-move_scrolly_2
-
-; Actually take care of moving the scrolling message
-
-  ld b, 8
-  ld ix, 0x50ff
-
-move_scrolly_3
-
-  push bc
-  push ix
-  ld b, 32
-
-move_scrolly_4
-
-  rl (ix)
-  dec ix
-
-  djnz move_scrolly_4
-
-  pop ix
-  inc ixh
-  pop bc
-  djnz move_scrolly_3
-
-  ld hl, v_scrolly_bits
-  dec (hl)
-  ret
-
 display_current_control_method
 
   ld hl, 0x5940 ; Line 10 of attr file
@@ -419,15 +333,15 @@ redefine_keys_loop
   sra a
   and 0x3
   cp 0
-  jr z, redefine_keys_cursor_blank
+  jr z, redefine_keys_cursor_on
   cp 1
   jr z, redefine_keys_cursor_half
-  ld a, 'n'
+  ld a, ' '
   jr redefine_keys_loop_2
 
-redefine_keys_cursor_blank
+redefine_keys_cursor_on
 
-  ld a, ' '
+  ld a, 'n'
   jr redefine_keys_loop_2
 
 redefine_keys_cursor_half
@@ -571,7 +485,7 @@ high_score_names_loop
 
   ld a, %01000110
   ld (v_attr), a
-  
+
   call set_fixed_font
   ld a, 26 * 8
   ld (v_column), a
@@ -720,7 +634,8 @@ str_scrolly_message
   defb "Rover the dog and his fellow mutts...   Pick up fuel cans to avoid running out of fuel...   "
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...   "
   defb "Damage to your mower will need to be repaired before tackling the next lawn...                            "
-  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...   ++++   ", 0
+  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...   ++++   ", 0xff
+  defw str_scrolly_message
 
 str_redefine_keys
 

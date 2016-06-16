@@ -60,9 +60,17 @@ control_input_made
   cp 0
   jr nz, check_dog_collision
 
-check_mower_up
+check_game_paused
 
   ld hl, v_controlbits
+  bit 4, (hl)
+  jr z, check_mower_up
+
+  call pause_game
+  jr main_loop
+
+check_mower_up
+
   bit 3, (hl)
   jr z, check_mower_down
   xor a
@@ -801,3 +809,76 @@ move_dog_pixel
   ld a, 'f'
   call putchar_pixel
   ret
+
+;
+; Sits around not doing very much until a
+; key is pressed to restart the game
+;
+pause_game
+
+; Initialise scrolly pause message
+
+  call clear_status_message
+  call set_proportional_font
+  ld hl, str_pause_scroll_message
+  ld a, %01000010
+  call init_scrolly
+
+; First debounce, ensure no keys are pressed
+
+pause_game_debounce
+
+  ld b, 10
+
+pause_game_debounce_1
+
+  halt
+  call move_scrolly
+  xor a
+  in a, (0xfe)
+  and 0x1f
+  cp 0x1f
+  jr nz, pause_game_debounce
+  dec b
+  ld a, b
+  cp 0
+  jr nz, pause_game_debounce_1
+
+pause_game_2
+
+  halt
+  call move_scrolly
+
+move_pause_attrs
+
+  ld de, 0x5ae0
+  ld a, (v_logo_attr_ptr)
+
+  ld hl, logo_attr_buffer
+  ld l, a
+  ld b, 31
+
+move_pause_attrs_2
+
+  ld a, (hl)
+  ld (de), a
+  inc de
+  inc l
+  djnz move_pause_attrs_2
+
+  ld hl, v_logo_attr_ptr
+  inc (hl)
+
+  call scan_keys
+  jr nc, pause_game_2
+  ld (v_status_delay), a
+  call expire_status_message
+  call set_fixed_font
+  ret
+
+str_pause_scroll_message
+
+str_game_paused
+
+  defb "Game paused - press any key to restart +++ ", 0xFF
+  defw str_game_paused

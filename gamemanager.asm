@@ -240,6 +240,13 @@ gamemanager_lvc_calc_time_bonus
   ld hl, v_buffer
   call print
   ld hl, str_glue_to_stick_gnomes_2
+  ld a, (v_gnomes_hit)
+  cp 1
+  jr nz, gamemanager_lvc_check_gnomes_2
+  ld hl, str_glue_to_stick_gnome_2
+
+gamemanager_lvc_check_gnomes_2
+
   call print
 
 ; Calculate cost of hitting gnomes
@@ -560,7 +567,7 @@ init_score
 
 str_time_bonus
 
-  defb AT, 8, LVC_TAB, INK, 5, BRIGHT, 1, "Time Bonus : ", 0
+  defb AT, 8, LVC_TAB, INK, 5, BRIGHT, 1, "Time bonus : ", 0
 
 str_time_bonus_2
 
@@ -568,7 +575,7 @@ str_time_bonus_2
 
 str_wages_earned
 
-  defb INK, 4, BRIGHT, 1, "\n", TAB, LVC_TAB, "Wages Earned :", 0
+  defb INK, 4, BRIGHT, 1, "\n", TAB, LVC_TAB, "Money earned :", 0
 
 str_glue_to_stick_gnomes
 
@@ -577,6 +584,10 @@ str_glue_to_stick_gnomes
 str_glue_to_stick_gnomes_2
 
   defb " gnomes :", 0
+
+str_glue_to_stick_gnome_2
+
+  defb " gnome :", 0
 
 str_flower_cost
 
@@ -604,7 +615,7 @@ str_cash_bonus_2
 
 str_total_bonus_score
 
-  defb INK, 2, BRIGHT, 1, "\n", TAB, LVC_TAB, "TOTAL BONUS SCORE : ", 0
+  defb INK, 2, BRIGHT, 1, "\n", TAB, LVC_TAB, "Total bonus score : ", 0
 
 str_level_complete_any_key
 

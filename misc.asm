@@ -6,7 +6,7 @@ init_misc
 
   ld hl, 0
   ld (v_isr_location), hl
-  
+
   ld a, 1
   ld hl, v_audio_options
   ld (hl), a
@@ -447,6 +447,7 @@ display_status_message_2
   call set_fixed_font
   ret
 
+;
 ; Called to display score and high score values.
 ;
 
@@ -847,6 +848,107 @@ mower_set_pixel_position
   sla a
   sla a
   ld (v_mower_y_moving), a
+  ret
+
+
+;
+; Handles scrolling messages. Call init_scrolly
+; with initial address of message in HL.
+; A = attributes to set.
+;
+;
+init_scrolly
+
+  ld (v_scrolly_ptr), hl
+  ld hl, 0x5ae0
+  ld de, 0x5ae1
+  ld bc, 31
+  ld (hl), a
+  ldir
+
+  xor a
+  ld (v_scrolly_bits), a
+  ld (0x5aff), a
+  ret
+
+move_scrolly
+
+  push hl
+  push de
+  push bc
+
+  ld a, (v_scrolly_bits)
+  cp 0
+  jr nz, move_scrolly_2
+
+; New character found
+
+  ld a, 23
+  ld (v_row), a
+  ld a, 31
+  ld (v_column), a
+
+  ld ix, (v_scrolly_ptr)
+  ld b, (ix)
+  ld a, (ix + 1)
+  inc ix
+  cp 0xff
+  ld (v_scrolly_ptr), ix
+  jr nz, move_scrolly_prchar
+
+  ld hl, (ix+1)
+  ld (v_scrolly_ptr), hl
+
+move_scrolly_prchar
+
+  ld a, ATTR_TRANS
+  ld (v_attr), a
+  ld a, b
+  push af
+  call putchar_8
+  pop af
+
+  ld hl, proportional_data
+  ld c, a
+  ld b, 0
+  or a
+  add hl, bc
+  ld a, (hl)
+  ld (v_scrolly_bits), a
+  ld a, 7
+  ld (v_attr), a
+
+move_scrolly_2
+
+; Actually take care of moving the scrolling message
+
+  ld b, 8
+  ld ix, 0x50ff
+
+move_scrolly_3
+
+  push bc
+  push ix
+  ld b, 32
+
+move_scrolly_4
+
+  rl (ix)
+  dec ix
+
+  djnz move_scrolly_4
+
+  pop ix
+  inc ixh
+  pop bc
+  djnz move_scrolly_3
+
+  ld hl, v_scrolly_bits
+  dec (hl)
+
+  pop bc
+  pop de
+  pop hl
   ret
 
 

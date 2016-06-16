@@ -10,7 +10,7 @@ tune_main_menu
 
   BLOCK 0xC800-$, 0x00
 
-tune_ingame
+tune_highscore
 
   incbin "tune_highscore.bin"
 
