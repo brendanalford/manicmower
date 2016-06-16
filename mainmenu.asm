@@ -37,6 +37,9 @@ main_menu
 
   ld hl, str_scrolly_message
   ld a, %01000111
+  ld b, a
+  ld a, 23
+  ld c, a
   call init_scrolly
   call init_logo_attrs
 

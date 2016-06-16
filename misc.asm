@@ -854,21 +854,48 @@ mower_set_pixel_position
 ;
 ; Handles scrolling messages. Call init_scrolly
 ; with initial address of message in HL.
-; A = attributes to set.
+; B = attributes to set.
+; C = Line on which scrolled message will be
+; displayed
+;
 ;
 ;
 init_scrolly
 
+  ld a, c
+  ld (v_scrolly_line), a
+
+  push bc
   ld (v_scrolly_ptr), hl
-  ld hl, 0x5ae0
-  ld de, 0x5ae1
+
+  xor a
+  ld h, a
+  ld a, (v_scrolly_line)
+  ld l, a
+
+; Calculate and clear attribute line for scroller
+
+  or a
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  ex de, hl
+  ld hl, 0x5800
+  add hl, de
+  ld de, hl
+  inc de
+
+  pop bc
+  ld a, b
   ld bc, 31
   ld (hl), a
   ldir
 
   xor a
   ld (v_scrolly_bits), a
-  ld (0x5aff), a
+  ld (hl), a
   ret
 
 move_scrolly
@@ -883,7 +910,7 @@ move_scrolly
 
 ; New character found
 
-  ld a, 23
+  ld a, (v_scrolly_line)
   ld (v_row), a
   ld a, 31
   ld (v_column), a
@@ -923,7 +950,15 @@ move_scrolly_2
 ; Actually take care of moving the scrolling message
 
   ld b, 8
-  ld ix, 0x50ff
+  ld a, (v_scrolly_line)
+  add a
+  add a
+  add a
+  call get_pixel_address_line
+  ld a, 31
+  add a, l
+  ld l, a
+  ld ix, hl
 
 move_scrolly_3
 

@@ -121,12 +121,13 @@ v_game_end_reason		equ #fe68; 1	Reason for game end. See defines above
 
 v_scrolly_ptr				equ #fe70; 2	Current position of scrolly message
 v_scrolly_bits			equ #fe72; 1	Bits left before new character
-v_logo_attr_ptr			equ #fe73; 1	Low byte of pointer into logo attribute buffer
-v_player_active			equ #fe74; 1	Non-zero - AY playback active, zero = play nothing
-v_module_page				equ #fe75; 1	RAM page that contains the current AY module being played
-v_128k_detected			equ #fe76; 1	Nonzero if running on 128K spectrum, zero if 48k
-v_audio_options			equ #fe77; 1	Bitmap for audio options. Bit 0 - FX on/off. Bit 1 - Music On/off
-v_isr_location			equ #fe78; 2	Interrupt routine to be called after normal IM2 operation, zero if disabled
+v_scrolly_line			equ #fe73; 1	Line number on which scrolly message is going
+v_logo_attr_ptr			equ #fe74; 1	Low byte of pointer into logo attribute buffer
+v_player_active			equ #fe75; 1	Non-zero - AY playback active, zero = play nothing
+v_module_page				equ #fe76; 1	RAM page that contains the current AY module being played
+v_128k_detected			equ #fe77; 1	Nonzero if running on 128K spectrum, zero if 48k
+v_audio_options			equ #fe78; 1	Bitmap for audio options. Bit 0 - FX on/off. Bit 1 - Music On/off
+v_isr_location			equ #fe79; 2	Interrupt routine to be called after normal IM2 operation, zero if disabled
 
 v_buffer						equ #fe80; 16	General purpose buffer
 

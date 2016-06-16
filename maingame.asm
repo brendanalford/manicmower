@@ -822,6 +822,9 @@ pause_game
   call set_proportional_font
   ld hl, str_pause_scroll_message
   ld a, %01000010
+  ld b, a
+  ld a, 22
+  ld c, a
   call init_scrolly
 
 ; First debounce, ensure no keys are pressed
@@ -851,7 +854,7 @@ pause_game_2
 
 move_pause_attrs
 
-  ld de, 0x5ae0
+  ld de, 0x5ac0
   ld a, (v_logo_attr_ptr)
 
   ld hl, logo_attr_buffer
