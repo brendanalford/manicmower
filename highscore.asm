@@ -76,6 +76,13 @@ check_high_score
   ld bc, 6
   ldir
 
+; And blank out the associated high score name (really just set)
+; the termination byte
+
+  ld hl, high_score_names + (40 * 9) + 7
+  xor a
+  ld (hl), a
+
   ld a, 9
   ld (v_high_score_index), a
 
@@ -103,7 +110,6 @@ check_high_score_2
   sub hl, bc
 
 ; Current high score - 1 is in HL
-; Swap them around for the comparison
 
   push hl
   push de
@@ -128,6 +134,51 @@ check_high_score_sort_swap
   inc de
   djnz check_high_score_sort_swap
 
+; Now swap the corresponding high score names
+
+  xor a
+  ld h, a
+  ld a, (v_high_score_index)
+  ld l, a
+  push hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  ex de, hl
+  pop hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, de
+  ld de, 7
+  add hl, de
+  ld de, high_score_names
+  add hl, de
+  push hl
+  ld de, 40
+  sub hl, de
+  ex de, hl
+  pop hl
+
+; HL contains current high score name, DE is high score - 1 name.
+; Both offset by 7 bytes to start of string
+
+  ld b, 32
+
+check_high_score_name_swap
+
+  ld a, (de)
+  ld c, a
+  ld a, (hl)
+  ld (de), a
+  ld a, c
+  ld (hl), a
+  inc hl
+  inc de
+  djnz check_high_score_name_swap
+
   ld a, (v_high_score_index)
   dec a
   ld (v_high_score_index), a
@@ -135,6 +186,9 @@ check_high_score_sort_swap
   jr nz, check_high_score_2
 
 check_high_score_sort_complete
+
+; Index of latest high score is now in v_high_score_index.
+; Shift all of the high score names down from that point.
 
   ret
 
@@ -152,12 +206,16 @@ compare_high_score_loop
   ld a, (de)
   cp (hl)
   jr c, compare_high_score_not_met
+  jr z, compare_high_score_loop_next
+
+  scf
+  ret
+
+compare_high_score_loop_next
 
   inc hl
   inc de
   djnz compare_high_score_loop
-  scf
-  ret
 
 compare_high_score_not_met
 
