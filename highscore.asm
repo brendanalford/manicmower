@@ -187,9 +187,42 @@ check_high_score_name_swap
 
 check_high_score_sort_complete
 
-; Index of latest high score is now in v_high_score_index.
-; Shift all of the high score names down from that point.
+;
+; Display the high score screen and allow the user to enter their
+; name.
+;
 
+  ld hl, AY_HIGH_SCORE_TUNE
+  ld a, 3
+  call init_music
+
+  call set_print_shadow_screen
+  call cls
+  call main_menu_logo
+  call set_proportional_font
+  ld hl, str_high_score_achieved
+  call print
+  call display_high_scores
+
+  call set_print_main_screen
+  call copy_shadow_screen_pixels
+  call restart_music
+  call fade_in_attrs
+
+  ld a, (v_high_score_index)
+  add 9
+  ld (v_row), a
+  ld a, 20
+  ld (v_column), a
+  call set_fixed_font
+  ld a, 'm'
+  call set_proportional_font
+  call putchar
+
+
+  call get_key
+  call fade_out_attrs
+  call mute_music
   ret
 
 ;
@@ -221,3 +254,9 @@ compare_high_score_not_met
 
   or a
   ret
+
+str_high_score_achieved
+
+  defb AT, 7, 64, INK, 6, BRIGHT, 1, "High score achieved!"
+  defb AT, 21, 24, "Please type in your name and press"
+  defb AT, 22, 60, "ENTER when complete.", 0
