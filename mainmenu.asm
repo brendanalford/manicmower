@@ -398,14 +398,57 @@ redefine_keys_check_loop_2
   inc hl
   jr redefine_keys_check_loop
 
+
+  call disable_main_menu_isr
+
 redefine_keys_check_ok
 
   ld a, (v_curdefkey)
   ld (ix), a
+
+; Check for Space
+
+  cp ' '
+  jr nz, redefine_keys_key_ss
+
+  ld hl, str_key_spc
+  call print
+  jr redefine_keys_release_key
+
+redefine_keys_key_ss
+
+  cp SYMBOL_SHIFT
+  jr nz, redefine_keys_key_cs
+
+  ld hl, str_key_ss
+  call print
+  jr redefine_keys_release_key
+
+redefine_keys_key_cs
+
+  cp CAPS_SHIFT
+  jr nz, redefine_keys_key_ent
+
+  ld hl, str_key_cs
+  call print
+  jr redefine_keys_release_key
+
+redefine_keys_key_ent
+
+  cp ENTER
+  jr nz, redefine_keys_show_key
+
+  ld hl, str_key_ent
+  call print
+  jr redefine_keys_release_key
+
+redefine_keys_show_key
+
   call putchar
 
 redefine_keys_release_key
 
+  call set_main_menu_isr
   call scan_keys
   jr c, redefine_keys_release_key
 
@@ -413,31 +456,47 @@ redefine_keys_release_key
   inc b
   ld a, b
   cp 5
-  jr nz, redefine_keys_loop
+  jp nz, redefine_keys_loop
 
 ; Store keys just defined in screen message area
 
   ld hl, v_definekeys
   ld de, str_main_menu_keys
-  ld bc, 5
-  ldir
+  ld a, 5
+  ld b, a
 
+redefine_keys_mask_new_keys
+
+  ld a, (hl)
+  cp ' ' + 1
+  jr nc, redefine_keys_mask_new_keys_2
+
+  ld a, '*'
+
+redefine_keys_mask_new_keys_2
+
+  ld (de), a
+  inc hl
+  inc de
+  djnz redefine_keys_mask_new_keys
 
 ; Confirm if the keys are ok
+
+redefine_confirm_keys
 
   call disable_main_menu_isr
   ld hl, str_keys_ok
   call print
   call set_main_menu_isr
 
-redefine_keys_confirm
+redefine_confirm_keys_2
 
   call get_key
   cp 'N'
   jp z, redefine_keys
   cp 'Y'
   jr z, redefine_keys_done
-  jr redefine_keys_confirm
+  jr redefine_confirm_keys_2
 
 redefine_keys_done
 
@@ -466,51 +525,7 @@ show_high_score_table
   ld hl, str_high_score_title
   call print
 
-  ld b, 10
-  ld a, b
-  dec a
-  ld (v_row), a
-  ld ix, high_score_names
-  ld iy, high_score_table
-
-high_score_names_loop
-
-  push bc
-  push ix
-  push iy
-
-  xor a
-  ld (v_column), a
-  ld hl, ix
-  ld a, %01000110
-  ld (v_attr), a
-  call print
-
-  ld a, %01000110
-  ld (v_attr), a
-
-  call set_fixed_font
-  ld a, 26 * 8
-  ld (v_column), a
-  ld hl, iy
-  call print
-  call set_proportional_font
-
-  pop iy
-  pop ix
-  or a
-  ld bc, 40
-  ld hl, ix
-  add hl, bc
-  ld ix, hl
-
-  ld bc, 8
-  ld hl, iy
-  add hl, bc
-  ld iy, hl
-
-  pop bc
-  djnz high_score_names_loop
+  call display_high_scores
 
   ld hl, str_high_score_any_key
   call print
@@ -652,6 +667,22 @@ str_redefine_keys
 str_keys_ok
 
   defb AT, 17, 50, "Are these keys ok? (y/n)", 0
+
+str_key_ent
+
+  defb "Ent", 0
+
+str_key_cs
+
+  defb "CS", 0
+
+str_key_ss
+
+  defb "SS", 0
+
+str_key_spc
+
+  defb "Spc", 0
 
 str_high_score_title
 

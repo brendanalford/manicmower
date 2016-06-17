@@ -12,8 +12,8 @@
 
 
 	define 	LEVEL_BUFFER_LEN	576
-	define	FUEL_FRAMES				30
-	define	TIME_FRAMES				120
+	define	FUEL_FRAMES				20
+	define	TIME_FRAMES				80
 
 	define 	ATTR_TRANS				0xff
 
@@ -137,3 +137,4 @@ v_lvc_glue					equ #fe94; 2	Glue cost to stick gnomes
 v_lvc_repair				equ #fe96; 2	Mower repair cost
 v_lvc_cash_bonus		equ #fe98; 2	Cash in hand after all costs
 v_lvc_total_bonus		equ #fe9a; 2	Total score bonus after level
+v_high_score_index	equ #fe9c; 1	Current high score index when calculating latest high score position

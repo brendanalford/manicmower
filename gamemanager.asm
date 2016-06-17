@@ -444,17 +444,37 @@ gamemanager_lvc_do_totals
 
   call get_key
   call fade_out_attrs
-  call mute_music
 
   call add_bonus_to_score
 
 ; Increment current level
-; TODO: Handle all levels complete
 
   ld a, (v_level)
   inc a
   cp 8
   jr nz, gamemanager_game_incomplete
+
+;
+; Game complete. Woohoo!
+;
+
+  call set_print_shadow_screen
+  call cls
+  ld hl, img_game_complete
+  ld de, SHADOW_SCREEN_BYTES * 0x100
+  ld bc, 0x1000
+  ldir
+  ld de, SHADOW_SCREEN_ATTR * 0x100
+  ld bc, 0x200
+  ldir
+  ld hl, str_game_complete
+  call print
+  call copy_shadow_screen_pixels
+  call fade_in_attrs
+
+  call set_print_main_screen
+  call get_key
+  call fade_out_attrs
 
 ; Back to the start. Poor suckers.
 
@@ -463,7 +483,7 @@ gamemanager_lvc_do_totals
 gamemanager_game_incomplete
 
   ld (v_level), a
-
+  call mute_music
   ret
 
 ;
@@ -628,3 +648,12 @@ str_level_complete_tab
 str_pound
 
   defb 0x60, 0
+
+str_game_complete
+
+  defb AT, 17, 80, INK, 7, BRIGHT, 1, TEXTBOLD, "Congratulations!", TEXTNORM
+  defb AT, 19, 12, "You have mown all eight lawns and lived"
+  defb AT, 20, 12, "to tell the tale."
+  defb AT, 21, 12, "Unfortunately, time (and grass growth)"
+  defb AT, 22, 12, "stops for no one..."
+  defb AT, 23, 160, INK, 4, "(press any key)", 0

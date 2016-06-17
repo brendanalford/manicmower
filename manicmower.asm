@@ -58,15 +58,17 @@ after_init
   call cls
 
   call gamemanager
+  call check_high_score
 
   jp after_init
 
+  include "input.asm"
+  include "misc.asm"
   include "screen.asm"
   include "gamemanager.asm"
+  include "highscore.asm"
   include "maingame.asm"
-  include "input.asm"
   include "levels.asm"
-  include "misc.asm"
   include "mainmenu.asm"
 
 

@@ -874,6 +874,10 @@ move_pause_attrs_2
 
   call scan_keys
   jr nc, pause_game_2
+  call read_controls
+  bit 4, (hl)
+  jr nz, pause_game_2
+  
   ld (v_status_delay), a
   call expire_status_message
   call set_fixed_font
