@@ -211,10 +211,6 @@ check_high_score_sort_complete
   call restart_music
   call fade_in_attrs
 
-  di
-  ld hl, high_score_isr
-  ld (v_isr_location), hl
-  ei
 
   ld a, (v_high_score_index)
   add 9
@@ -252,6 +248,11 @@ check_high_score_sort_complete
   ld b, 0
   ld a, %01000111
   ld (v_attr), a
+
+  di
+  ld hl, high_score_isr
+  ld (v_isr_location), hl
+  ei
 
 enter_high_score_name
 
@@ -397,23 +398,26 @@ enter_high_score_name_debounce
 
 enter_high_score_end
 
+; Kill the ISR
+
+  di
+  ld hl, 0
+  ld (v_isr_location), hl
+  ei
+
 ; Terminate the high score string just entered
 
   ld (ix), 0
   ld a, b
   cp 0
   jr nz, enter_high_score_end_2
+  push ix
+  pop de
   ld hl, str_anonymous_coward
-  ld de, ix
-  ld bc,str_anonymous_coward_str_end - str_anonymous_coward
+  ld bc, str_anonymous_coward_str_end - str_anonymous_coward
   ldir
 
 enter_high_score_end_2
-
-  di
-  ld hl, 0
-  ld (v_isr_location), hl
-  ei
 
   call fade_out_attrs
   call mute_music

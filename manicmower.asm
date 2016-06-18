@@ -108,6 +108,8 @@ interrupt_routine
   push hl
   push de
   push bc
+  push af
+  exx
 
   ld a, (v_player_active)
   cp 0
@@ -122,17 +124,21 @@ interrupt_routine_check_custom_isr
   or l
   jr z, interrupt_routine_exit
 
-  ld de, hl
+  push hl
+  pop de
   ld hl, interrupt_routine_exit
   push hl
-  ld hl, de
+  push de
+  pop hl
   jp hl
 
 interrupt_routine_exit
 
+  exx
   pop hl
   pop de
   pop bc
+  pop af
   exx
   pop iy
   pop ix
