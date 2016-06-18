@@ -211,6 +211,11 @@ check_high_score_sort_complete
   call restart_music
   call fade_in_attrs
 
+  di
+  ld hl, high_score_isr
+  ld (v_isr_location), hl
+  ei
+
   ld a, (v_high_score_index)
   add 9
   ld (v_row), a
@@ -395,8 +400,28 @@ enter_high_score_end
 ; Terminate the high score string just entered
 
   ld (ix), 0
+  ld a, b
+  cp 0
+  jr nz, enter_high_score_end_2
+  ld hl, str_anonymous_coward
+  ld de, ix
+  ld bc,str_anonymous_coward_str_end - str_anonymous_coward
+  ldir
+
+enter_high_score_end_2
+
+  di
+  ld hl, 0
+  ld (v_isr_location), hl
+  ei
+
   call fade_out_attrs
   call mute_music
+  ret
+
+high_score_isr
+
+  call move_logo_attrs
   ret
 
 ;
@@ -431,6 +456,12 @@ compare_high_score_not_met
 
 str_high_score_achieved
 
-  defb AT, 7, 64, INK, 6, BRIGHT, 1, "You have a high score!"
+  defb AT, 7, 56, INK, 6, BRIGHT, 1, "You have a high score!"
   defb AT, 21, 24, "Please type in your name and press"
   defb AT, 22, 60, "ENTER when complete.", 0
+
+str_anonymous_coward
+
+  defb "(Anonymous coward)", 0
+
+str_anonymous_coward_str_end
