@@ -293,14 +293,6 @@ enter_high_score_name_2a
   cp SYMBOL_SHIFT
   jr z, enter_high_score_name_2a
 
-  push af
-
-enter_high_score_name_debounce
-
-  call scan_keys
-  jr c, enter_high_score_name_debounce
-  pop af
-
   cp DELETE
   jr nz, enter_high_score_name_3
 
@@ -340,7 +332,7 @@ enter_high_score_name_debounce
   sub d
   ld (v_column), a
 
-  jr enter_high_score_name
+  jr enter_high_score_name_debounce
 
 enter_high_score_name_3
 
@@ -390,6 +382,12 @@ enter_high_score_name_3
   ld a, (v_column)
   add d
   ld (v_column), a
+
+enter_high_score_name_debounce
+
+  call scan_keys
+  jr c, enter_high_score_name_debounce
+
   jp enter_high_score_name
 
 enter_high_score_end
@@ -433,6 +431,6 @@ compare_high_score_not_met
 
 str_high_score_achieved
 
-  defb AT, 7, 64, INK, 6, BRIGHT, 1, "High score achieved!"
+  defb AT, 7, 64, INK, 6, BRIGHT, 1, "You have a high score!"
   defb AT, 21, 24, "Please type in your name and press"
   defb AT, 22, 60, "ENTER when complete.", 0
