@@ -1,4 +1,6 @@
 
+  define HIGH_SCORE_TAB     26 * 8
+
 ;
 ; Displays the high score table.
 ;
@@ -28,7 +30,7 @@ high_score_names_loop
   ld (v_attr), a
 
   call set_fixed_font
-  ld a, 26 * 8
+  ld a, HIGH_SCORE_TAB
   ld (v_column), a
   ld hl, iy
   call print
@@ -214,13 +216,187 @@ check_high_score_sort_complete
   ld (v_row), a
   ld a, 20
   ld (v_column), a
-  call set_fixed_font
+
+; Calculate position in high score name table and set IX
+; as a pointer
+
+  ld a, (v_high_score_index)
+  ld l, a
+  push hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  ex de, hl
+  pop hl
+  add hl, hl
+  add hl, hl
+  add hl, hl
+  add hl, de
+  ld de, 7
+  add hl, de
+  ld de, high_score_names
+  add hl, de
+  ld ix, hl
+
+; B = character count. Must not exceed 31.
+; C = cursor flash status.
+
+  ld c, 0
+  ld b, 0
+  ld a, %01000111
+  ld (v_attr), a
+
+enter_high_score_name
+
+  halt
+
+  inc c
+  ld a, c
+  sra a
+  sra a
+  sra a
+  and 0x3
+  cp 0
+  jr z, enter_high_score_cursor_on
+  cp 1
+  jr z, enter_high_score_cursor_half
+  ld a, ' '
+  jr enter_high_score_name_2
+
+enter_high_score_cursor_on
+
+  ld a, 'n'
+  jr enter_high_score_name_2
+
+enter_high_score_cursor_half
+
   ld a, 'm'
-  call set_proportional_font
+
+enter_high_score_name_2
+
+  push af
+  call set_fixed_font
+  pop af
   call putchar
+  call set_proportional_font
 
+enter_high_score_name_2a
 
-  call get_key
+  ld a, 1
+  call scan_keys
+  jr nc, enter_high_score_name
+
+  cp CAPS_SHIFT
+  jr z, enter_high_score_name_2a
+  cp SYMBOL_SHIFT
+  jr z, enter_high_score_name_2a
+
+  push af
+
+enter_high_score_name_debounce
+
+  call scan_keys
+  jr c, enter_high_score_name_debounce
+  pop af
+
+  cp DELETE
+  jr nz, enter_high_score_name_3
+
+; Is there anything to delete?
+
+  ld a, b
+  cp 0
+  jr z, enter_high_score_name
+
+; Clear cursor
+
+  call set_fixed_font
+  ld a, ' '
+  call putchar
+  call set_proportional_font
+
+; Reposition pointers
+
+  dec ix
+  dec b
+
+; Work out width of character we're deleting
+
+  ld a, (ix)
+
+  ld l, a
+  xor a
+  ld h, a
+  ld de, proportional_data
+  add hl, de
+  ld a, (hl)
+  ld d, a
+
+; Subtract width of last character from print position
+
+  ld a, (v_column)
+  sub d
+  ld (v_column), a
+
+  jr enter_high_score_name
+
+enter_high_score_name_3
+
+  cp ENTER
+  jr z, enter_high_score_end
+
+; If delete or enter isn't pressed, don't
+; allow any further key entry
+
+  ld (v_buffer), a
+  ld a, b
+  cp 31
+  jr z, enter_high_score_name
+
+; Also don't allow any further entry
+; if there's physically no room.
+
+  ld a, (v_column)
+  cp HIGH_SCORE_TAB - 32
+  jr nc, enter_high_score_name
+
+; Don't allow CS/SS on their own either
+
+  ld a, (v_buffer)
+  cp SYMBOL_SHIFT
+  jp z, enter_high_score_name
+
+; Store pressed character in IX and print it
+
+  ld (ix), a
+  push af
+  call putchar
+  pop af
+  inc ix
+  inc b
+
+; Advance the cursor position by the number of
+; pixels in the character
+
+  ld l, a
+  xor a
+  ld h, a
+  ld de, proportional_data
+  add hl, de
+  ld a, (hl)
+  ld d, a
+  ld a, (v_column)
+  add d
+  ld (v_column), a
+  jp enter_high_score_name
+
+enter_high_score_end
+
+; Terminate the high score string just entered
+
+  ld (ix), 0
   call fade_out_attrs
   call mute_music
   ret
