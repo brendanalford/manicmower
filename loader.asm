@@ -7,7 +7,7 @@
 ; We'll use entry point 0x0563 for LD_BYTES so we don't get redirected
 ; through SA/LD-RET on completion.
 
-  define LD_BYTES         0x0563
+  define LD_BYTES         0x0556
   define v_128k           25000
 
   org 25000
@@ -19,11 +19,11 @@
 
   ld a, 0
   call pagein
-  ld ix, 0x7FFF
+  ld ix, 0x8000
   ld de, 0x8000
   ld a, 0xff
   scf
-  call load_bytes
+  call LD_BYTES
 
   ld a, (v_128k)
   cp 0
@@ -33,20 +33,19 @@
 
   ld a, 1
   call pagein
-  ld ix, 0xBFFF
+  ld ix, 0xc000
   ld de, 0x4000
   ld a, 0xff
   scf
-  call load_bytes
-
+  call LD_BYTES
 
   ld a, 3
   call pagein
-  ld ix, 0xBFFF
+  ld ix, 0xc000
   ld de, 0x4000
   ld a, 0xff
   scf
-  call load_bytes
+  call LD_BYTES
 
   ld a, 0
   call pagein
@@ -99,10 +98,5 @@ pagein
   ld bc, 0x7ffd
   out (c), a
   ret
-
-load_bytes
-
-  jp LD_BYTES
-
 
   BLOCK 25200-$, 0x00

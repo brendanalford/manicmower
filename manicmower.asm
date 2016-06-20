@@ -217,12 +217,15 @@ default_keys
 
   BLOCK 0xB500-$, 0x00
 
-  ; Interrupt vector table
+; Interrupt vector table
 
 intvec_table
 
   BLOCK 0xB601-$, 0xFF
 
+; Hide turboloader here
+
+  include "turboloader.asm"
 ;
 ; AY Module
 ; Player loads to B700

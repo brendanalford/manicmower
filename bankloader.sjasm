@@ -1,7 +1,0 @@
-; SjASMPlus source file for Manic Mower
-
-  define ORG 25000
-  define LENGTH 100
-  device zxspectrum48
-  include bankloader.asm
-  savebin "bankloader.bin",ORG,LENGTH

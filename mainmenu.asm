@@ -146,6 +146,7 @@ main_menu_done
   ld hl, 0
   ld (v_isr_location), hl
   ei
+  call fade_out_attrs
   ret
 
 ;
