@@ -20,11 +20,6 @@
 
 init
 
-; Take 128K detection flag from loader
-
-  ld a, (25029)
-  ld (v_128k_detected), a
-
   call init_print
   call init_misc
   call init_controls
@@ -78,6 +73,9 @@ init_interrupts
   ld a, intvec_table / 256
   ld i, a
   im 2
+
+  ld a, 0x18
+  ld (0xffff), a
 
 ; Set up AY player flag.
 
@@ -215,6 +213,12 @@ default_keys
 
   defb "QAOPH"
 
+; Hide turboloader here
+
+  BLOCK 0xB300-$, 0x00
+
+  include "turboloader.asm"
+
   BLOCK 0xB500-$, 0x00
 
 ; Interrupt vector table
@@ -223,9 +227,6 @@ intvec_table
 
   BLOCK 0xB601-$, 0xFF
 
-; Hide turboloader here
-
-  include "turboloader.asm"
 ;
 ; AY Module
 ; Player loads to B700

@@ -5,6 +5,10 @@ sjasmplus loader.sjasm
 if %errorlevel% neq 0 goto :end
 bin2tap -a 25000 loader.bin
 
+sjasmplus turboloader.sjasm
+if %errorlevel% neq 0 goto :end
+bin2tap -a 45824 turboloader.bin
+
 sjasmplus musicassets.sjasm
 if %errorlevel% neq 0 goto :end
 bin2hltap musicassets.bin
@@ -17,8 +21,11 @@ sjasmplus manicmower.sjasm --lst=manicmower.lst --lstlab
 if %errorlevel% neq 0 goto :end
 bin2hltap manicmower.bin main.tap
 
-echo Building tape image...
+echo Building TAP image...
 copy /b mowerloader.tap + loader.tap + main.tap + musicassets.tap + musicassets2.tap manicmower.tap
-:end
 
+echo Building TZX image...
+rem buildtzx manicmower.tzx mowerloader.tap loader.tap main.tap musicassets.tap musicassets2.tap
+buildtzx manicmower.tzx mowerloader_turbo.tap turboloader.tap manicmower.bin musicassets.bin musicassets2.bin
+:end
 exit /b errorlevel

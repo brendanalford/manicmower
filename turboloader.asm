@@ -1,8 +1,102 @@
 ;
-; Turboloader.asm
-; This is *heavily* borrowed from the ROM loader :)
-; Comments to keep me sane as I didn't write the code!
+; BankSelector.asm
 ;
+; Your ass is grass (tm)
+;
+
+  org 45824 ; (B300)
+
+  di
+
+; Load main game
+
+  ld a, 0
+  call pagein
+  ld ix, 0x8000
+  ld de, 0x8000
+  ld a, 0xff
+  scf
+  call load_bytes
+
+  call detect_128k
+
+  ld a, (v_128k)
+  cp 0
+  jr z, start_game
+
+; 128K detected - load music blocks
+
+  ld a, 1
+  call pagein
+  ld ix, 0xc000
+  ld de, 0x4000
+  ld a, 0xff
+  scf
+  call load_bytes
+
+  ld a, 3
+  call pagein
+  ld ix, 0xc000
+  ld de, 0x4000
+  ld a, 0xff
+  scf
+  call load_bytes
+
+  ld a, 0
+  call pagein
+
+; Start game!
+
+start_game
+
+  xor a
+  out (0xfe), a
+  jp 0x8000
+
+detect_128k
+
+  xor a
+  ld bc, 0x7ffd
+  out (c), a
+  ld a, 0x55
+  ld (0xfffe), a
+  ld a, 7
+  out (c), a
+  ld a, (0xfffe)
+  cp 0x55
+  jr z, detect_128k_done
+
+  ld a, 1
+  ld (v_128k), a
+
+detect_128k_done
+
+  ret
+
+; We always want ROM 0 to be in place.
+; So, we'll first write to 1FFD just in
+; case we're on a +2A or +3, then do the
+; proper write to 7FFD.
+
+pagein
+
+  push af
+  ld bc, 0x1ffd
+  ld a, 0x04  ; ROM 3 - 48K BASIC
+  out (c), a
+  pop af
+
+  and 0x07
+  ld b, a
+  ld a, 0x10
+  or b
+  ld bc, 0x7ffd
+  out (c), a
+  ret
+
+v_128k
+
+  defb 0      ; 128K Detection flag
 
 
 load_bytes
@@ -134,7 +228,7 @@ load_dec
 
   dec de      ; Decrement length
   ex af, af'  ; 'flags
-  ld b, 0x02  ; Timing
+  ld b, 0xb2  ; Timing
 
 ;   when starting to read 8 bits the receiving byte is marked with bit at right.
 ;   when this is rotated out again then 8 bits have been read.
@@ -149,7 +243,7 @@ load_8_bits
   call load_edge_2  ; routine LD-EDGE-2 increments B relative to
                     ; gap between 2 edges.
   ret nc            ; Time out
-  ld a, 0xcb        ; Comparison byte - XXX CHANGE FOR TURBO
+  ld a, 0xc0        ; Comparison byte - XXX CHANGE FOR TURBO (was 0xcb)
   cp b              ; compare to incremented value of B.
                     ; if B is higher then bit on tape was set.
                     ; if <= then bit on tape is reset.

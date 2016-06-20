@@ -7,6 +7,27 @@ init_misc
   ld hl, 0
   ld (v_isr_location), hl
 
+; Check if we're on a 128K
+
+  xor a
+  ld (v_128k_detected), a
+  call page_in_ram
+  ld a, 0xAA
+  ld (0xfffe), a
+
+  ld a, 7
+  call page_in_ram
+  ld a, (0xfffe)
+  cp 0xAA
+  jr z, init_misc_1
+
+  xor a
+  call page_in_ram
+  ld a, 1
+  ld (v_128k_detected), a
+
+init_misc_1
+
   ld a, 1
   ld hl, v_audio_options
   ld (hl), a
@@ -1095,8 +1116,16 @@ pagein_module
 
 page_in_ram
 
-  and 0x7
   push bc
+
+  push af
+  ld bc, 0x1ffd
+  ld a, 0x04  ; ROM 3 - 48K BASIC
+  out (c), a
+  pop af
+
+  and 0x7
+  or 0x10
   ld bc, 0x7ffd
   out (c), a
   pop bc

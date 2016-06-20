@@ -1,7 +1,7 @@
 ; SjASMPlus source file for Manic Mower
 
-  define ORG 25000
-  define LENGTH 200
+  define ORG 25000; 45824
+  define LENGTH 200; 512
   device zxspectrum48
-  include loader.asm
+  include loader.asm ;turboloader.asm
   savebin "loader.bin",ORG,LENGTH
