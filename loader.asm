@@ -8,10 +8,8 @@
 ; through SA/LD-RET on completion.
 
   define LD_BYTES         0x0556
-  define v_128k           25000
-
+  
   org 25000
-  nop       ; This'll be overwritten by our 128K flag
   di
   call detect_128k
 
@@ -98,5 +96,9 @@ pagein
   ld bc, 0x7ffd
   out (c), a
   ret
+
+v_128k
+
+  defb 0      ; 128K Detection flag
 
   BLOCK 25200-$, 0x00
