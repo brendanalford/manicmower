@@ -336,7 +336,7 @@ load_sample
   ld a, 0x7f
   in a, (0xfe)    ; Read keyboard/ear port 0x7ffe
   rra
-  ret nc          ; Return if space pressed
+;  ret nc          ; Return if space pressed
 
   xor c           ; Compare with long term state
   and 0x20        ; Isolate bit 5
