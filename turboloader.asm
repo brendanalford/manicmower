@@ -4,6 +4,8 @@
 ; Your ass is grass (tm)
 ;
 
+  define XORVAL   0x09
+
   org 45824 ; (B300)
 
   di
@@ -120,7 +122,7 @@ load_bytes
 
   inc d
   ex af, af' ; Keep formatting'
-  dec c
+  dec d
   di
 
   ld a, 0x00      ; Border black and mic off
@@ -259,7 +261,7 @@ load_8_bits
 
   call load_edge_2  ; routine LD-EDGE-2 increments B relative to
                     ; gap between 2 edges.
-  ret nc            ; Time out
+  jr nc, load_error ; Time out
   ld a, 0xc0        ; Comparison byte - XXX CHANGE FOR TURBO (was 0xcb)
   cp b              ; compare to incremented value of B.
                     ; if B is higher then bit on tape was set.
@@ -270,6 +272,12 @@ load_8_bits
                     ; Back to ld-8-bits
 
 ;   when carry set then marker bit has been passed out and byte is complete.
+
+  push af
+  ld a, l
+  xor XORVAL
+  ld l, a
+  pop af
 
   ld a, h           ; Fetch running parity byte
   xor l             ; Include the new byte
@@ -283,6 +291,7 @@ load_8_bits
 
   ld a, h           ; Fetch parity byte
   cp 0x1            ; Set carry if 0
+  jr nc, load_error
   ret               ; return
                     ; in no carry then error as checksum disagrees.
 
@@ -351,6 +360,13 @@ load_sample
 
   scf          ; Set carry flag - edge found
   ret
+
+load_error
+
+  and 0x7
+  out (0xfe), a
+  inc a
+  jr load_error
 
 load_stripe_val
 
