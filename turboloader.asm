@@ -8,6 +8,23 @@
 
   di
 
+  xor a
+  ld hl, 0x5800
+  push hl
+  pop de
+  inc de
+  ld bc, 0x2ff
+  ld (hl), a
+  ldir
+
+; Load title screen
+
+  ld ix, 0x4000
+  ld de, 0x1b00
+  ld a, 0xff
+  scf
+  call load_bytes
+
 ; Load main game
 
   ld a, 0

@@ -1,5 +1,5 @@
 ;
-; BankSelector.asm
+; loader.asm
 ;
 ; Your ass is grass (tm)
 ;
@@ -11,7 +11,23 @@
 
   org 25000
   di
-  call detect_128k
+
+  xor a
+  ld hl, 0x5800
+  push hl
+  pop de
+  inc de
+  ld bc, 0x2ff
+  ld (hl), a
+  ldir
+
+; Load title screen
+
+  ld ix, 0x4000
+  ld de, 0x1b00
+  ld a, 0xff
+  scf
+  call LD_BYTES
 
 ; Load main game
 
@@ -22,6 +38,8 @@
   ld a, 0xff
   scf
   call LD_BYTES
+
+  call detect_128k
 
   ld a, (v_128k)
   cp 0
