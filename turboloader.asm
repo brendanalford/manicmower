@@ -169,7 +169,7 @@ load_leader
   call load_edge_2
   jr nc, load_break ; time out detected
 
-  ld a, 0xc6
+  ld a, 0xa6
   cp b
   jr nc, load_start ; Too close for lead in
 
