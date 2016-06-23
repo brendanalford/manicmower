@@ -2,6 +2,26 @@
 ; misc.asm
 ;
 
+stop_the_tape
+
+  call set_proportional_font
+  call cls
+  ld hl, str_stop_tape
+  call print
+
+  ld b, 150
+
+stop_the_tape_loop
+
+  halt
+  djnz stop_the_tape_loop
+  call cls
+  ret
+
+str_stop_tape
+
+  defb AT, 12, 88, INK, 7, BRIGHT, 1, TEXTBOLD, "Stop the Tape", TEXTNORM, 0
+
 init_misc
 
   ld hl, 0

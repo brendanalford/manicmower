@@ -363,10 +363,19 @@ load_sample
 
 load_error
 
-  and 0x7
+  ld hl, 0x5800
+  ld de, 0x5801
+  ld bc, 0x2ff
+  ld (hl), 0
+  ldir
+
+load_error_loop
+
+  ld a, 2
   out (0xfe), a
-  inc a
-  jr load_error
+  xor a
+  out (0xfe), a
+  jr load_error_loop
 
 load_stripe_val
 

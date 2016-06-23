@@ -25,6 +25,10 @@ init
   call init_controls
   call init_interrupts
 
+  ld a, (v_128k_detected)
+  cp 0
+  call z, stop_the_tape
+
 ; Remove this before releasing
 
   call cls
@@ -57,9 +61,9 @@ after_init
 
   jp after_init
 
+  include "screen.asm"
   include "input.asm"
   include "misc.asm"
-  include "screen.asm"
   include "gamemanager.asm"
   include "highscore.asm"
   include "maingame.asm"
