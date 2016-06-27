@@ -29,25 +29,6 @@ init
   cp 0
   call z, stop_the_tape
 
-; Remove this before releasing
-
-  call cls
-  call set_proportional_font
-  ld hl, str_build_timestamp
-  call print
-
-  ld bc, 50
-
-init_loop
-
-  halt
-  call scan_keys
-  jr c, after_init
-  dec bc
-  ld a, b
-  or c
-  jr nz, init_loop
-
 after_init
 
   call cls
@@ -69,7 +50,6 @@ after_init
   include "maingame.asm"
   include "levels.asm"
   include "mainmenu.asm"
-
 
 init_interrupts
 
@@ -263,8 +243,6 @@ level_data
   defw level_6_data
   defw level_7_data
   defw level_8_data
-  defw level_9_data
-  defw level_10_data
 
 ; Level data for each individual screen.
 ; Data format is as follows:
@@ -276,36 +254,41 @@ level_data
 
 level_1_data
 
+  defb 5, 3, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 3, 5
+  defb 10, 9, 15, 9, 0, 0
+  defb 5, 5, 26, 5, 5, 12, 26, 12, 0, 0
+  defb 10, 7, 13, 7, 20, 9, 0, 0
+  defb 20, 12, 0, 0
+
+level_2_data
+
   defb 3, 4, 2, 3, 4, 2, 2, 0, 2, 4, 5, 4, 4, 4
   defb 17, 3, 11, 6, 7, 8, 20, 8, 21, 8, 21, 11, 21, 13, 0, 0
   defb 8, 3, 24, 5, 16, 6, 22, 7, 15, 9, 12, 10, 8, 11, 20, 13, 14, 13, 18, 15, 0, 0
   defb 7, 2, 22, 2, 23, 7, 12, 9, 0, 0
   defb 20, 11, 0, 0
 
-level_2_data
 level_3_data
 level_4_data
 level_5_data
 level_6_data
 level_7_data
 level_8_data
-level_9_data
-level_10_data
 
   BLOCK 0xEE00-$, 0x00
 
 high_score_names
 
-  defb "1. ", TAB, 20, INK, 5, "Hold on to the thread",0,"          ", 0
-  defb "2. ", TAB, 20, INK, 5, "The currents will shift",0,"        ", 0
-  defb "3. ", TAB, 20, INK, 5, "Guide me towards you",0,"           ", 0
-  defb "4. ", TAB, 20, INK, 5, "Know something's left",0,"          ", 0
-  defb "5. ", TAB, 20, INK, 5, "And we're allowed to dream",0,"     ", 0
-  defb "6. ", TAB, 20, INK, 5, "Of the next time we touch",0,"      ", 0
-  defb "7. ", TAB, 20, INK, 5, "You don't have to stray",0,"        ", 0
-  defb "8. ", TAB, 20, INK, 5, "The oceans away",0,"                ", 0
-  defb "9. ", TAB, 20, INK, 5, "Waves roll in my thoughts",0,"      ", 0
-  defb "10.", TAB, 20, INK, 5, "Hold tight the ring",0,"            ", 0
+  defb "1. ", TAB, 20, INK, 5, "\"Flash, Flash!!!\"",0,"              ", 0
+  defb "2. ", TAB, 20, INK, 5, "\"What is it, Dale? Can't you",0,"   ", 0
+  defb "3. ", TAB, 20, INK, 5, "see I'm eating my bowl",0,"         ", 0
+  defb "4. ", TAB, 20, INK, 5, "of Crunchy Nut Corn",0,"            ", 0
+  defb "5. ", TAB, 20, INK, 5, "Flakes?\"",0,"                       ", 0
+  defb "6. ", TAB, 20, INK, 5, "\"We've only got 15 seconds",0,"     ", 0
+  defb "7. ", TAB, 20, INK, 5, "to save the universe!!!\"",0,"       ", 0
+  defb "8. ", TAB, 20, INK, 5, "\"All right, all right! I'm",0,"     ", 0
+  defb "9. ", TAB, 20, INK, 5, "ready. Now, what's all this",0,"    ", 0
+  defb "10.", TAB, 20, INK, 5, "about a....\"",0,"                   ", 0
 
 
 high_score_table

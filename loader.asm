@@ -23,12 +23,19 @@
 
 ; Load title screen
 
-  ld ix, 0x4000
+  ld ix, 0x8000
   ld de, 0x1b00
   ld a, 0xff
   scf
   call LD_BYTES
 
+; Copy it to screen RAM
+
+  ld hl, 0x8000
+  ld de, 0x4000
+  ld bc, 0x1b00
+  ldir
+  
 ; Load main game
 
   ld a, 0

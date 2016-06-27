@@ -21,11 +21,18 @@
 
 ; Load title screen
 
-  ld ix, 0x4000
+  ld ix, 0x8000
   ld de, 0x1b00
   ld a, 0xff
   scf
   call load_bytes
+
+; Copy it to screen memory
+
+  ld hl, 0x8000
+  ld de, 0x4000
+  ld bc, 0x1b00
+  ldir
 
 ; Load main game
 
@@ -169,7 +176,7 @@ load_leader
   call load_edge_2
   jr nc, load_break ; time out detected
 
-  ld a, 0xa6
+  ld a, 0xc6
   cp b
   jr nc, load_start ; Too close for lead in
 
