@@ -136,16 +136,6 @@ interrupt_routine_exit
 ; Game text strings
 ;
 
-str_text
-
-  defb "Manic Mower\n"
-  defb "THE QUICK BROWN FOX JUMPS OVER\nTHE LAZY DOG\n"
-  defb "0123456789\na b c d e f g h i j k l\nm n o p q r s t u v w x y z\n",0
-
-str_wait
-
-  defb AT, 23, 0,  "Press any key to commence demo...\n", 0
-
 str_status
 
   defb AT, 0, 0, PAPER, 0, BRIGHT, 1, INK, 4, WIDTH, 8,  "SCORE        HIGH        TIME ", INK, 5, "99DAMAGE ", INK, 4, "    ", INK, 6, "   ", INK, 2, "  ", INK, 5, " FUEL "

@@ -460,7 +460,7 @@ compare_high_score_not_met
 
 str_high_score_achieved
 
-  defb AT, 7, 56, INK, 6, BRIGHT, 1, "You have a high score!"
+  defb AT, 7, 60, INK, 6, BRIGHT, 1, "You have a high score!"
   defb AT, 21, 24, "Please type in your name and press"
   defb AT, 22, 60, "ENTER when complete.", 0
 

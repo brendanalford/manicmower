@@ -614,7 +614,7 @@ str_main_menu_pun_table
 
 str_main_menu_pun_1
 
-  defb AT, 7, 12, INK, 4, BRIGHT, 1, "A beautiful lawn doesn't happen by itself", 0
+  defb AT, 7, 4, INK, 4, BRIGHT, 1, "A beautiful lawn doesn't happen by itself", 0
 
 str_main_menu_pun_2
 
@@ -622,15 +622,15 @@ str_main_menu_pun_2
 
 str_main_menu_pun_3
 
-  defb AT, 7, 24, INK, 4, "I fought the lawn, and the lawn won", 0
+  defb AT, 7, 28, INK, 4, "I fought the lawn, and the lawn won", 0
 
 str_main_menu_pun_4
 
-  defb AT, 7, 50, INK, 4, "a.k.a. Gasman Music Demo", 0
+  defb AT, 7, 54, INK, 4, "a.k.a. Gasman Music Demo", 0
 
 str_main_menu_pun_5
 
-  defb AT, 7, 50, INK, 4, "Lawn Enforcement Officer", 0
+  defb AT, 7, 52, INK, 4, "Lawn Enforcement Officer", 0
 
 str_main_menu_pun_6
 
@@ -646,14 +646,15 @@ str_main_menu_pun_8
 
 str_scrolly_message
 
-  defb " Manic Mower    Written by Brendan Alford    Music kindly donated by Gasman"
-  defb "    Based on the crappy original written by myself in 1992 "
-  defb "that somehow got published in Sinclair User...    "
+  defb "Manic Mower...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
   defb "Mow the lawns as quickly as possible while avoiding the walls, garden gnomes, plants and especially "
-  defb "Rover the dog and his fellow mutts...   Pick up fuel cans to avoid running out of fuel...   "
-  defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...   "
-  defb "Damage to your mower will need to be repaired before tackling the next lawn...                            "
-  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...   ++++   ", 0xff
+  defb "Rover the dog and his fellow mutts...    Pick up fuel cans to avoid running out of fuel...    "
+  defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...    "
+  defb "Damage to your mower will need to be repaired before tackling the next lawn...        "
+  defb "Based on the crappy original written by myself in 1992 "
+  defb "that somehow got published in Sinclair User.  What can I say, standards were "
+  defb "obviously quite low at that stage :)    "
+  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...     ++++     ", 0xff
   defw str_scrolly_message
 
 str_redefine_keys
@@ -687,8 +688,8 @@ str_key_spc
 
 str_high_score_title
 
-  defb AT, 7, 70, INK, 2, BRIGHT, 1, "H ", INK, 3, "I ", INK, 4, "G ", INK, 5, "H   "
-  defb INK, 6, "S ", INK, 7, "C ", INK, 2, "O ", INK, 3, "R ", INK, 4, "E ", INK, 5, "S", 0
+  defb AT, 7, 72, INK, 2, BRIGHT, 1, "H ", INK, 3, "I ", INK, 4, "G ", INK, 5, "H   "
+  defb INK, 6, "S ", INK, 6, "C ", INK, 5, "O ", INK, 4, "R ", INK, 3, "E ", INK, 2, "S", 0
 
 str_high_score_any_key
 
