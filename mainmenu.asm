@@ -77,6 +77,17 @@ main_menu_loop
   jr nc, menu_other_selection
 
   sub '1'
+
+; Have we selected the same control method as before?
+
+  ld b, a
+  ld a, (v_control_method)
+  cp b
+  jr z, main_menu_loop
+
+; Nope, update it
+
+  ld a, b
   ld (v_control_method), a
   call display_current_control_method
   jr main_menu_loop
@@ -305,11 +316,6 @@ redefine_keys
 
   ld hl, str_redefine_keys
   call print
-
-  ; call set_fixed_font
-  ; ld hl, str_text
-  ; call print
-  ; call set_proportional_font
 
   call set_main_menu_isr
 
