@@ -1041,6 +1041,8 @@ check_startup_keys
   bit 0, a
   ret nz
 
+  xor a
+  ld (v_attr), a
   call cls
   ld a, 3
   call page_in_ram
@@ -1068,7 +1070,7 @@ check_startup_loop
   ld bc, 0xfff
   ld (hl), a
   ldir
-  
+
   call page_in_ram
 
   call set_proportional_font
