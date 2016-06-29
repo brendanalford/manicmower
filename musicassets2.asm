@@ -14,4 +14,7 @@ tune_highscore
 
   incbin "tune_highscore.bin"
 
-  BLOCK 0xF600-$, 0x00
+  BLOCK 0xF000-$, 0x00
+
+  incbin "encoded.dat"
+  

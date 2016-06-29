@@ -22,6 +22,7 @@ init
 
   call init_print
   call init_misc
+  call check_startup_keys
   call init_controls
   call init_interrupts
 

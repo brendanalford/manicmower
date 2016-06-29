@@ -1027,6 +1027,80 @@ move_scrolly_4
   pop hl
   ret
 
+check_startup_keys
+
+  ld a, (v_128k_detected)
+  cp 0
+  ret z
+  ld bc, 0x7ffe
+  in a, (c)
+  bit 4, a
+  ret nz
+  ld bc, 0xfdfe
+  in a, (c)
+  bit 0, a
+  ret nz
+
+  call cls
+  ld a, 3
+  call page_in_ram
+  ld hl, 0xf000
+  ld de, 0x4000
+  ld bc, 0x1000
+  ld ixh, 0
+
+check_startup_loop
+
+  ld a, (hl)
+  xor ixh
+  inc ixh
+  inc hl
+  ld (de), a
+  inc de
+  dec bc
+  ld a, b
+  or c
+  jr nz, check_startup_loop
+
+  xor a
+  ld hl, 0xf000
+  ld de, 0xf001
+  ld bc, 0xfff
+  ld (hl), a
+  ldir
+  
+  call page_in_ram
+
+  call set_proportional_font
+  call set_print_main_screen
+  ld hl, asset
+  call print
+  ld a, %01111000
+  ld hl, 0x5800
+  ld de, 0x5801
+  ld bc, 0x1ff
+  ld (hl), a
+  ldir
+
+check_startup_keys_loop
+
+  call scan_keys
+  jr nc, check_startup_keys_loop
+
+  call get_key
+
+  xor a
+  ld hl, 0x5800
+  ld de, 0x5801
+  ld bc, 0x2ff
+  ld (hl), a
+  ldir
+  call cls
+  ret
+
+asset
+
+  defb 23, 19, 12, 16, 7, "Really? What were you expecting, some\n", 14, 64, "kind of information? :)", 0
 
 ;	AY Player constants
 
