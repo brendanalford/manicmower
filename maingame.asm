@@ -877,7 +877,7 @@ move_pause_attrs_2
   call read_controls
   bit 4, (hl)
   jr nz, pause_game_2
-  
+
   ld (v_status_delay), a
   call expire_status_message
   call set_fixed_font
@@ -887,5 +887,5 @@ str_pause_scroll_message
 
 str_game_paused
 
-  defb "Game paused - press any key to restart +++ ", 0xFF
+  defb "Game paused - press any key to resume +++ ", 0xFF
   defw str_game_paused

@@ -656,4 +656,7 @@ str_game_complete
   defb AT, 20, 12, "to tell the tale."
   defb AT, 21, 12, "Unfortunately, time (and grass growth)"
   defb AT, 22, 12, "stops for no one..."
+
+str_press_any_key
+
   defb AT, 23, 160, INK, 4, "(press any key)", 0
