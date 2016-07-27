@@ -86,11 +86,11 @@ ay_player_base
 
   BLOCK 0xEC00-$, 0x00
 
-  include "leveldata.asm"
+  include "highscoredata.asm"
 
   BLOCK 0xEE00-$, 0x00
 
-  include "highscoredata.asm"
+  include "leveldata.asm"
 
   BLOCK 0xF200-$, 0x00
 

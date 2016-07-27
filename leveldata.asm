@@ -20,7 +20,7 @@ level_data
 ; Fuel x,y - position of fuel. 0000 denotes end
 ; Dog x,y - initial position of dog(s) in playfield. 0000 denotes end.
 
-level_1_data
+level_7_data
 
   defb 5, 3, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 3, 5
   defb 10, 9, 15, 9, 0, 0
@@ -63,5 +63,21 @@ level_5_data
   defb 18, 6, 22, 9, 7, 13, 0, 0
 
 level_6_data
-level_7_data
+
+  defb 3, 2, 2, 5, 2, 2, 5, 3, 3, 1, 0, 5, 5, 3
+  defb 18, 5, 8, 7, 10, 7, 6, 11, 9, 11, 24, 11, 21, 14, 0, 0
+  defb 10, 2, 11, 2, 20, 2, 12, 3, 15, 3, 15, 4, 18, 4, 8, 5, 23, 5, 16, 6, 23, 6
+  defb 21, 7, 14, 8, 19, 8, 21, 8, 17, 9, 20, 10, 22, 10, 19, 11, 11, 12, 12, 12, 20, 12
+  defb 17, 13, 18, 13, 12, 14, 10, 15, 0, 0
+  defb 4, 2, 22, 3, 11, 6, 17, 7, 14, 10, 16, 15, 0, 0
+  defb 5, 2, 16, 11, 7, 13, 0, 0
+
+level_1_data
+
+  defb 3, 4, 2, 3, 4, 2, 0, 5, 4, 2, 4, 5, 2, 2
+  defb 5, 4, 14, 5, 24, 6, 18, 11, 12, 13, 22, 13, 10, 14, 0, 0
+  defb 0, 0
+  defb 0, 0
+  defb 0, 0
+
 level_8_data
