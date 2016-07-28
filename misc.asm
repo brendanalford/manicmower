@@ -730,7 +730,12 @@ remove_hit_dog
   inc de
   inc de
 
+; Dead dog to be overwritten in HL,
+; next dogs in list starting in DE.
+
 remove_hit_dog_loop
+
+; Check if the dog details at (DE) are valid.
 
   ld a, (de)
   ld b, a
@@ -740,9 +745,9 @@ remove_hit_dog_loop
   inc de
   or b
   jr z, remove_hit_dog_done
-
-  ld (hl), bc
+  ld (hl), b
   inc hl
+  ld (hl), c
   inc hl
   jr remove_hit_dog_loop
 

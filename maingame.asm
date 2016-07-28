@@ -595,12 +595,7 @@ check_move_dog_2
 
 check_move_dog_found
 
-;  ld a, %01010000
-;  ld (0x5ae0), a
-
-  xor a
-  ld (v_dog_x_dir), a
-  ld (v_dog_y_dir), a
+; Decide if we want to move this mutt
 
   ld a, r
   and 0xf
@@ -618,6 +613,10 @@ check_move_dog_selected
 
 ; Moving this dog, pick a direction to move
 ; Use the bits taken from 3-7 of the R register
+
+  xor a
+  ld (v_dog_x_dir), a
+  ld (v_dog_y_dir), a
 
   ld a, r
   sra a
@@ -694,6 +693,36 @@ check_move_dog_can_move
   push hl
   pop de
 
+; Check for collision with other doggies
+
+  ld iy, v_dogbuffer
+
+check_move_dog_is_unsociable
+
+; Check if we've passed the end of the list
+
+  ld a, (iy)
+  or (iy+1)
+  jr z, check_move_dog_free_to_move
+
+  ld a, (iy)
+  cp e
+  jr nz, check_move_dog_unsociable_next
+  ld a, (iy+1)
+  cp d
+
+; Return if there's a dog at the destination coords
+
+  ret z
+
+check_move_dog_unsociable_next
+
+  inc iy
+  inc iy
+  jr check_move_dog_is_unsociable
+
+check_move_dog_free_to_move
+
 ; Get offset into level buffer of destination
 
   call calc_xy_to_hl
@@ -739,9 +768,6 @@ check_move_dog_can_move
   exx
 
 ; All vars set, the main loop will handle this from now on
-
-;  ld a, %01100000
-;  ld (0x5ae0), a
 
   ret
 
