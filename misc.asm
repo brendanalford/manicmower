@@ -291,6 +291,20 @@ frame_halt_2
   jr nz, frame_halt_3
 
 ; Decrement clock
+; First check if we're at 00
+
+  ld a, (v_time)
+  cp '0'
+  jr nz, pre_dec_time_loop
+  ld a, (v_time+1)
+  cp '0'
+  jr nz, pre_dec_time_loop
+
+  ld a, 1
+  ld (v_time_expired), a
+  jr decrement_done_2
+
+pre_dec_time_loop
 
   ld hl, v_time + 1
 
@@ -309,6 +323,8 @@ decrement_loop
 decrement_done
 
   ld (hl), a
+
+decrement_done_2
 
   xor a
   ld (v_row), a

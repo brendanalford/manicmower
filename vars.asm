@@ -105,19 +105,20 @@ v_slow_movement			equ #fe54; 1	0 - normal movement, 1 - slow movement
 v_pending_score			equ #fe55; 1	Pending score x 10
 v_grass_left				equ #fe56; 1	Grass left to mow? 1 - yes, 0 - no
 v_time							equ #fe57; 2	Time left
-v_status_msg				equ #fe59; 1	Status message code, 0 - no message 1 - hit wall, 2 - hit gnome, 3 - hit flowers, 4 - hit dog
-v_status_delay			equ #fe5a; 1	Delay in frames before erasing status message
-v_playerkeys				equ #fe5b; 5	Keys used for controls (UDLRP)
-v_playerup					equ #fe5b; 1	Key used for UP
-v_playerdown				equ #fe5c; 1	Key used for DOWN
-v_playerleft				equ #fe5d; 1	Key used for LEFT
-v_playerright				equ #fe5e; 1	Key used for RIGHT
-v_playerpause				equ #fe5f; 1	key used for Pause
-v_definekeys				equ #fe60; 5	Keys defined for keyboard option
-v_curdefkey					equ #fe65; 1 	Current keypress being evaluated for redefinition
-v_control_method 		equ #fe66; 1	Control type: 0 Keyboard, 1 Sinclair 1, 2 Sinclair 2, 3 Kempston, 4 Cursor
-v_controlbits				equ #fe67; 1	Control bitmap: xxxFUDLR
-v_game_end_reason		equ #fe68; 1	Reason for game end. See defines above
+v_time_expired			equ #fe59; 1	Set if time limit has expired for this level
+v_status_msg				equ #fe5a; 1	Status message code, 0 - no message 1 - hit wall, 2 - hit gnome, 3 - hit flowers, 4 - hit dog
+v_status_delay			equ #fe5b; 1	Delay in frames before erasing status message
+v_playerkeys				equ #fe5c; 5	Keys used for controls (UDLRP)
+v_playerup					equ #fe5c; 1	Key used for UP
+v_playerdown				equ #fe5d; 1	Key used for DOWN
+v_playerleft				equ #fe5e; 1	Key used for LEFT
+v_playerright				equ #fe5f; 1	Key used for RIGHT
+v_playerpause				equ #fe60; 1	key used for Pause
+v_definekeys				equ #fe61; 5	Keys defined for keyboard option
+v_curdefkey					equ #fe66; 1 	Current keypress being evaluated for redefinition
+v_control_method 		equ #fe67; 1	Control type: 0 Keyboard, 1 Sinclair 1, 2 Sinclair 2, 3 Kempston, 4 Cursor
+v_controlbits				equ #fe68; 1	Control bitmap: xxxFUDLR
+v_game_end_reason		equ #fe69; 1	Reason for game end. See defines above
 
 v_scrolly_ptr				equ #fe70; 2	Current position of scrolly message
 v_scrolly_bits			equ #fe72; 1	Bits left before new character

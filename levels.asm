@@ -452,6 +452,7 @@ prepare_misc
   xor a
   ld (v_status_msg), a
   ld (v_status_delay), a
+  ld (v_time_expired), a
 
 ; Set level start message index
 

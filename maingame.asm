@@ -411,6 +411,15 @@ main_loop_end_2
 
 main_loop_end_3
 
+  ld a, (v_time_expired)
+  cp 0
+  jr z, main_loop_end_4
+
+  call main_game_over_out_of_time
+  jp main_loop_exit
+
+main_loop_end_4
+
   xor a
   out (0xfe), a
 
@@ -513,6 +522,17 @@ main_game_over_damage_loop_2
   ret
 
 ;
+; Out of time
+;
+
+main_game_over_out_of_time
+
+  ld hl, str_game_over_time
+  ld a, STATUS_GAME_OVER
+  call display_status_message
+  jr main_game_over_out_of_fuel_2
+
+;
 ; Out of fuel
 ;
 
@@ -521,6 +541,8 @@ main_game_over_out_of_fuel
   ld hl, str_game_over_fuel
   ld a, STATUS_GAME_OVER
   call display_status_message
+
+main_game_over_out_of_fuel_2
 
   ld a, (v_audio_options)
   bit 0, a

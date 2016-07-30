@@ -26,7 +26,7 @@ str_hit_flowers
 
 str_hit_dog
 
-  defb AT, 22, 24, INK, 2, BRIGHT, 1, "Rover gets a short back and sides!", 0
+  defb AT, 22, 24, INK, 6, BRIGHT, 1, "Rover gets a short back and sides!", 0
 
 str_level_begin
 
@@ -43,6 +43,10 @@ str_game_over_damage
 str_game_over_fuel
 
   defb AT, 22, 60, INK, 7, "You've run out of fuel!", 0
+
+str_game_over_time
+
+  defb AT, 22, 60, INK, 5, "You've run out of time!", 0
 
 str_build_timestamp
 
