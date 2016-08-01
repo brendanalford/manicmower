@@ -716,7 +716,7 @@ disable_main_menu_isr
 
 str_main_menu_options
 
-  defb AT, 10, 70, INK, 6, BRIGHT, 0, "1. Keyboard ("
+  defb AT, 10, 70, INK, 6, BRIGHT, 0, "1.", TAB, 84, "Keyboard ("
 
 str_main_menu_keys
 
@@ -851,7 +851,7 @@ str_high_score_any_key
 str_cheat_modes
 
   defb AT, 7, 36, INK, 5, "Yes, I am a filthy cheater and I", AT, 8, 76," have no morals."
-  defb AT, 11, 52, INK, 6, "1. Infinite time..."
+  defb AT, 11, 52, INK, 6, "1.", TAB, 66, "Infinite time..."
   defb AT, 12, 52, "2. Infinite fuel..."
   defb AT, 13, 52, "3. No repair cost..."
   defb AT, 14, 52, "4. No damage....."
