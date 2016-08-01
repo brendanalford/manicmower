@@ -513,6 +513,14 @@ display_level_complete
 ;
 display_and_subtract_cost
 
+  ld a, (v_cheat_mode)
+  bit 3, a
+  jr z, display_and_subtract_cost_2
+
+  ld hl, 0
+  
+display_and_subtract_cost_2
+
 ; Save value and print it
 
   push hl

@@ -77,7 +77,8 @@ v_keybuffer					equ #fe10; 8  Keyboard scanning map
 
 ; Game variables
 
-v_rand_seed					equ #fe1e; 1 - Random number seed
+v_rand_seed					equ #fe1d; 1 - Random number seed
+v_cheat_mode				equ #fe1e; 1 - Cheat mode bitmask
 v_level							equ #fe1f; 1 - Current level (zero based)
 v_score							equ #fe20; 8 - Current score, ASCII encoded
 v_fuel_frame				equ #fe28; 1 - Frames left until fuel is decremented

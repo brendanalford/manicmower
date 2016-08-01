@@ -383,9 +383,6 @@ mower_move_4
 main_loop_end
 
   call increment_score
-  ; ld a, 2
-  ; out (0xfe), a
-
   call survey_grass
   call handle_status
 
@@ -601,6 +598,11 @@ check_move_dog
 
   xor a
   ld (v_dog_moving), a
+
+  ld a, (v_cheat_mode)
+  bit 4, a
+  ret nz
+
   ld ix, v_dogbuffer
 
 check_move_dog_2

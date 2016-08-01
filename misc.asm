@@ -33,6 +33,8 @@ init_misc
 
   ld a, r
   ld (v_rand_seed), a
+  xor a
+  ld (v_cheat_mode), a
 
 ; Check if we're on a 128K
 
@@ -262,6 +264,10 @@ frame_halt
   cp 0
   jr nz, frame_halt_2
 
+  ld a, (v_cheat_mode)
+  bit 1, a
+  jr nz, frame_halt_2
+
 ; Are we out of fuel?
 
   ld a, (v_fuel)
@@ -293,6 +299,9 @@ frame_halt_2
   ld a, (v_time_frame)
   dec a
   cp 0
+  jr nz, frame_halt_3
+  ld a, (v_cheat_mode)
+  bit 0, a
   jr nz, frame_halt_3
 
 ; Decrement clock
@@ -624,6 +633,10 @@ increment_score_done
 add_damage
 
   ld b, a
+  ld a, (v_cheat_mode)
+  bit 3, a
+  ret nz
+  
   ld a, (v_damage)
   add b
   cp 9

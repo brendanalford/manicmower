@@ -52,6 +52,8 @@ main_menu
   ld (v_isr_location), hl
   ei
 
+  ld ix, filthy_bastard_cheater_keys
+
 main_menu_loop
 
   halt
@@ -61,15 +63,15 @@ main_menu_loop
   jr nc, main_menu_loop
 
   cp '0'
-  jr z, main_menu_done
+  jp z, main_menu_done
 
   cp '9'
   jr z, modify_sound_options
 
   cp '1'
-  jr c, main_menu_loop
+  jr c, menu_other_selection
   cp '8'
-  jr nc, main_menu_loop
+  jr nc, menu_other_selection
 
 ; Option selected between 1 and 8
 
@@ -98,6 +100,26 @@ menu_other_selection
   call z, redefine_keys
   cp '7'
   call z, show_high_score_table
+
+  cp (ix)
+  jr nz, menu_other_selection_3
+
+menu_other_selection_2
+
+  in a, (0xfe)
+  and 0x1f
+  cp 0x1f
+  jr nz, menu_other_selection_2
+
+  inc ix
+  ld a, (ix)
+  cp 0
+  jr nz, menu_other_selection_3
+
+  call show_cheat_menu
+  ld ix, filthy_bastard_cheater_keys
+
+menu_other_selection_3
 
   jr main_menu_loop
 
@@ -146,7 +168,7 @@ modify_sound_options_3
   call scan_keys
   jr c, modify_sound_options_3
 
-  jr main_menu_loop
+  jp main_menu_loop
 
 ; Redefine keys and high score viewing go here
 
@@ -174,6 +196,10 @@ main_menu_isr
 ;
 display_pun
 
+  ld a, (v_cheat_mode)
+  bit 7, a
+  jr nz, display_alternative_pun
+
   ld a, r
   and 0x7
   add a
@@ -185,6 +211,12 @@ display_pun
   add hl, bc
   ld bc, (hl)
   ld hl, bc
+  call print
+  ret
+
+display_alternative_pun
+
+  ld hl, str_main_menu_pun_9
   call print
   ret
 
@@ -555,6 +587,116 @@ show_high_score_table
   call set_main_menu_isr
   ret
 
+filthy_bastard_cheater_keys
+
+  defb "MANDY", 0
+
+show_cheat_menu
+
+; Once a cheater, always a cheater
+
+  ld hl, v_cheat_mode
+  set 7, (hl)
+
+  ld hl, 0x38B7;  Wipe lines 56-191, leaving logo intact
+  call screen_wipe
+
+  call disable_main_menu_isr
+
+  ld hl, str_cheat_modes
+  call print
+  call display_cheat_menu_options
+
+  call set_main_menu_isr
+
+cheat_menu_loop
+
+  call get_key
+
+  cp '1'
+  jr c, cheat_menu_loop_end
+  cp '6'
+  jr nc, cheat_menu_loop_end
+
+  and a
+  sub '0'
+  ld b, a
+  xor a
+  scf
+
+cheat_menu_loop_rot
+
+  rl a
+  djnz cheat_menu_loop_rot
+
+  ld b, a
+  ld a, (v_cheat_mode)
+
+  xor b
+  ld (v_cheat_mode), a
+
+  call disable_main_menu_isr
+  call display_cheat_menu_options
+  call set_main_menu_isr
+
+  jr cheat_menu_loop
+
+cheat_menu_loop_end
+
+  ld hl, 0x38B7
+  call screen_wipe
+
+  call disable_main_menu_isr
+
+  call display_pun
+  ld hl, str_main_menu_options
+  call print
+  call display_current_control_method
+  call display_current_sound_option
+
+  call set_main_menu_isr
+  ret
+
+display_cheat_menu_options
+
+  ld a, (v_cheat_mode)
+  ld b, a
+  ld c, 0
+
+display_cheat_menu_options_2
+
+  push af
+  push bc
+  ld hl, cheat_off
+  bit 0, b
+  jr z, display_cheat_menu_options_3
+  ld hl, cheat_on
+
+display_cheat_menu_options_3
+
+  ld a, c
+  add 11
+  ld (v_row), a
+  ld a, 180
+  ld (v_column), a
+  call print
+  pop bc
+  pop af
+
+  rr b
+  inc c
+  ld a, c
+  cp 5
+  jr nz, display_cheat_menu_options_2
+  ret
+
+cheat_on
+
+  defb INK, 4, BRIGHT, 1, "On  ", 0
+
+cheat_off
+
+  defb INK, 2, BRIGHT, 1, "Off", 0
 
 set_main_menu_isr
 
@@ -650,6 +792,10 @@ str_main_menu_pun_8
 
   defb AT, 7, 80, INK, 4, "Get off my lawn", 0
 
+str_main_menu_pun_9
+
+  defb AT, 7, 52, INK, 4, "Winners don't use cheats.", 0
+
 str_scrolly_message
 
   defb "Manic Mower...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
@@ -701,3 +847,13 @@ str_high_score_title
 str_high_score_any_key
 
   defb AT, 21, 80, INK, 5, "Press any key.", 0
+
+str_cheat_modes
+
+  defb AT, 7, 36, INK, 5, "Yes, I am a filthy cheater and I", AT, 8, 76," have no morals."
+  defb AT, 11, 52, INK, 6, "1. Infinite time..."
+  defb AT, 12, 52, "2. Infinite fuel..."
+  defb AT, 13, 52, "3. No repair cost..."
+  defb AT, 14, 52, "4. No damage....."
+  defb AT, 15, 52, "5. Dogs don't move..."
+  defb AT, 19, 20, INK, 7, "Any other key returns to main menu.", 0
