@@ -619,8 +619,8 @@ check_move_dog_found
 
 ; Decide if we want to move this mutt
 
-  ld a, r
-  and 0xf
+  call random
+  and 0x3
   cp 0
 
   jr z, check_move_dog_selected
@@ -634,23 +634,19 @@ check_move_dog_found
 check_move_dog_selected
 
 ; Moving this dog, pick a direction to move
-; Use the bits taken from 3-7 of the R register
 
   xor a
   ld (v_dog_x_dir), a
   ld (v_dog_y_dir), a
 
-  ld a, r
-  sra a
-  sra a
-  sra a
-  and 0xf
-  ld b, a
+
+  call random
+  and 3
 
 ; Check right
 
-  bit 0, b
-  jr z, check_move_dog_sel_1
+  cp 0
+  jr nz, check_move_dog_sel_1
 
   ld a, 1
   ld (v_dog_x_dir), a
@@ -660,8 +656,8 @@ check_move_dog_sel_1
 
 ; Check left
 
-  bit 1, b
-  jr z, check_move_dog_sel_2
+  cp 1
+  jr nz, check_move_dog_sel_2
 
   ld a, 255
   ld (v_dog_x_dir), a
@@ -671,8 +667,8 @@ check_move_dog_sel_2
 
 ; Check up
 
-  bit 2, b
-  jr z, check_move_dog_sel_3
+  cp 2
+  jr nz, check_move_dog_sel_3
 
   ld a, 255
   ld (v_dog_y_dir), a

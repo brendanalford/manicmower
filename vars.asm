@@ -77,8 +77,9 @@ v_keybuffer					equ #fe10; 8  Keyboard scanning map
 
 ; Game variables
 
-v_level							equ #fe1f
-v_score							equ #fe20
+v_rand_seed					equ #fe1e; 1 - Random number seed
+v_level							equ #fe1f; 1 - Current level (zero based)
+v_score							equ #fe20; 8 - Current score, ASCII encoded
 v_fuel_frame				equ #fe28; 1 - Frames left until fuel is decremented
 v_time_frame				equ #fe29; 1 - Frames left until time is decremented
 v_dogbuffer					equ #fe30; 16 - space for 8 indivdial dogs. Should be plenty.

@@ -29,6 +29,11 @@ init_misc
   ld hl, 0
   ld (v_isr_location), hl
 
+; Set random number seed
+
+  ld a, r
+  ld (v_rand_seed), a
+
 ; Check if we're on a 128K
 
   xor a
@@ -912,6 +917,29 @@ mower_set_pixel_position
   sla a
   sla a
   ld (v_mower_y_moving), a
+  ret
+
+;
+; Generates a pseudo-random number between 0 and 255.
+;
+
+random
+
+  push bc
+
+  ld a, (v_rand_seed)
+  ld b, a
+  rrca
+  rrca
+  rrca
+  xor 0x1f
+
+  add a, b
+  sbc a, 255
+
+  ld (v_rand_seed), a
+  pop bc
+
   ret
 
 
