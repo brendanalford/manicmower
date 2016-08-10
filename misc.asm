@@ -151,7 +151,7 @@ read_controls_kempston
 
 read_controls_keyboard
 
-  xor a
+  ld a, 2
   call scan_keys
   ret nc
 
@@ -636,7 +636,7 @@ add_damage
   ld a, (v_cheat_mode)
   bit 3, a
   ret nz
-  
+
   ld a, (v_damage)
   add b
   cp 9

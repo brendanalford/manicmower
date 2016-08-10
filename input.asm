@@ -38,7 +38,9 @@ keylookup_symshift
 
 ;
 ;	Scans the keyboard for a single keypress.
-;	A set to 1 on entry implies full upper/lower case.
+; Accumulator contains flags as follows:
+;	Bit 0 : Allow mixed case.
+; Bit 1 : Treat CS/SS as standalone keys, not modifiers
 ;	Returns with carry flag set and key in accumulator if
 ;	found, or carry flag clear if no key pressed.
 ;
@@ -47,6 +49,7 @@ scan_keys
 
 	push ix
 	push hl
+  push de
 	push bc
 	push af
 
@@ -72,12 +75,27 @@ key_row_read
  	ld ix, v_keybuffer
 	ld hl, keylookup_lower
 
-	cp 1
-	jr z, no_force_upcase
+; Store keyboard read flags in D
+
+  ld d, a
+
+; Are we forcing upper case?
+
+	bit 0, d
+	jr nz, no_force_upcase
+
+; Yes we are
 
 	ld hl, keylookup_norm
 
 no_force_upcase
+
+; Treat CS/SS as modifiers?
+
+  bit 1, d
+  jr nz, no_sym_pressed
+
+; Yes, alter key lookup tables on this basis.
 
 	bit 0, (ix+7)
 	jr nz, no_caps_pressed
@@ -109,15 +127,26 @@ key_loop
 ;	Key found, lookup from table
 
 	ld a, (hl)
-	cp 0x03
 
-;	If it's Caps or Symbol shift, continue scanning
+; Exit if we are treating modifier keys as standalone
 
-	jr c, key_next
+  bit 1, d
+  jr nz, key_return
+
+;	We're treating CS/SS as modifiers, so if these are pressed, continue
+; scanning
+
+  cp CAPS_SHIFT
+	jr z, key_next
+  cp SYMBOL_SHIFT
+  jr z, key_next
 
 ;	Else return with key in A
 
+key_return
+
 	pop bc
+  pop de
 	pop hl
 	pop ix
 	scf
@@ -125,6 +154,7 @@ key_loop
 
 key_next
 
+  ld a, 0xff
 	inc hl
 	srl (ix)
 	djnz key_loop
@@ -138,13 +168,15 @@ map_row_next
 	pop bc
 	cp 0xff
 	jr z, no_key
-	pop hl
+  pop de
+  pop hl
 	pop ix
 	scf
 	ret
 
 no_key
 
+  pop de
 	pop hl
 	pop ix
 	and a 	; reset carry flag
@@ -156,8 +188,13 @@ no_key
 ;
 
 get_key
+
 	push bc
+  ld b, a
+
 get_key_scan
+
+  ld a, b
 	call scan_keys
 	jr nc, get_key_scan
 	ld b, a

@@ -405,6 +405,7 @@ redefine_keys_loop_2
   call putchar
   call set_proportional_font
 
+  ld a, 2
   call scan_keys
   jr nc, redefine_keys_loop
   ld (v_curdefkey), a
@@ -530,6 +531,7 @@ redefine_confirm_keys
 
 redefine_confirm_keys_2
 
+  xor a
   call get_key
   cp 'N'
   jp z, redefine_keys

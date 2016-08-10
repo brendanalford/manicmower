@@ -254,9 +254,21 @@ check_high_score_sort_complete
   ld (v_isr_location), hl
   ei
 
+; B' register, bit 0 - debounce required?
+
+  exx
+  ld b, 0
+  exx
+
 enter_high_score_name
 
+  exx
+  push bc
+  exx
   halt
+  exx
+  pop bc
+  exx
 
   inc c
   ld a, c
@@ -292,12 +304,31 @@ enter_high_score_name_2a
 
   ld a, 1
   call scan_keys
-  jr nc, enter_high_score_name
+  jr c, enter_high_score_name_2b
 
-  cp CAPS_SHIFT
-  jr z, enter_high_score_name_2a
-  cp SYMBOL_SHIFT
-  jr z, enter_high_score_name_2a
+; Nothing pressed, set debounce required flag to 0
+
+enter_high_score_name_debounce
+
+  exx
+  res 0, b
+  exx
+  jr enter_high_score_name
+
+enter_high_score_name_2b
+
+; Check if debounce is required, ignore this key if so
+
+  exx
+  bit 0, b
+  exx
+  jr nz, enter_high_score_name
+
+; Key was pressed, force debounce next time around
+
+  exx
+  set 0, b
+  exx
 
   cp DELETE
   jr nz, enter_high_score_name_3
@@ -338,33 +369,35 @@ enter_high_score_name_2a
   sub d
   ld (v_column), a
 
-  jr enter_high_score_name_debounce
+  jr enter_high_score_name
 
 enter_high_score_name_3
 
   cp ENTER
   jr z, enter_high_score_end
 
+  cp BREAK
+  jr nz, enter_high_score_name_4
+  ld a, ' '
+
 ; If delete or enter isn't pressed, don't
 ; allow any further key entry
+
+enter_high_score_name_4
 
   ld (v_buffer), a
   ld a, b
   cp 31
-  jr z, enter_high_score_name
+  jp z, enter_high_score_name
 
 ; Also don't allow any further entry
 ; if there's physically no room.
 
   ld a, (v_column)
   cp HIGH_SCORE_TAB - 32
-  jr nc, enter_high_score_name
-
-; Don't allow CS/SS on their own either
+  jp nc, enter_high_score_name
 
   ld a, (v_buffer)
-  cp SYMBOL_SHIFT
-  jp z, enter_high_score_name
 
 ; Store pressed character in IX and print it
 
@@ -388,11 +421,6 @@ enter_high_score_name_3
   ld a, (v_column)
   add d
   ld (v_column), a
-
-enter_high_score_name_debounce
-
-  call scan_keys
-  jr c, enter_high_score_name_debounce
 
   jp enter_high_score_name
 
