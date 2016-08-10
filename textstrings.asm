@@ -50,7 +50,7 @@ str_game_over_time
 
 str_build_timestamp
 
-  defb AT, 0, 0, INK, 7, "Dev version: ", BUILD_TIMESTAMP, 0
+  defb AT, 0, 0, INK, 7, "Beta version: ", BUILD_TIMESTAMP, 0
 
 ; Default keys
 
