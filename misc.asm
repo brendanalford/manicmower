@@ -248,13 +248,11 @@ calculate_mower_current_coords
 
 
 ;
-; Take care of frame flyback, time counts etc.
+; Take care of fuel, time counts etc. at end of frame
 ;
 
-frame_halt
+end_frame
 
-  halt
-  di
   push hl
   push de
   push bc
@@ -366,7 +364,6 @@ frame_halt_3
   pop bc
   pop de
   pop hl
-  ei
   ret
 
 

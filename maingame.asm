@@ -3,7 +3,7 @@
 ;
 main_loop
 
-  call frame_halt
+  halt
 
   ld a, (v_audio_options)
   bit 0, a
@@ -345,7 +345,7 @@ mower_move
   cp 8
   jr z, mower_move_2
 
-  call frame_halt
+  halt
 
 mower_move_2
 
@@ -356,7 +356,7 @@ mower_move_2
   ld a, (v_slow_movement)
   cp 0
   jr z, mower_move_3
-  call frame_halt
+  halt
 
 mower_move_3
 
@@ -378,10 +378,12 @@ mower_move_4
 
   xor a
   out (0xfe), a
+  call end_frame
   djnz mower_move
 
 main_loop_end
 
+  call end_frame
   call increment_score
   call survey_grass
   call handle_status
