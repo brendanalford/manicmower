@@ -16,8 +16,7 @@ main_loop_2
   call check_break_pressed
   jp nc, main_loop_3
 
-;  ld a, GAME_ABORTED
-  ld a, LEVEL_COMPLETE
+  ld a, GAME_ABORTED
   ld (v_game_end_reason), a
   jp main_loop_exit
 
