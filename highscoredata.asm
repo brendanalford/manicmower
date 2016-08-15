@@ -1,15 +1,15 @@
 high_score_names
 
-  defb "4. ", TAB, 20, INK, 5, "It's just a flesh wound",0,"        ", 0
-  defb "5. ", TAB, 20, INK, 5, "I'm Brian and so's my wife",0,"     ", 0
-  defb "4. ", TAB, 20, INK, 5, "This is an ex-parrot",0,"           ", 0
-  defb "5. ", TAB, 20, INK, 5, "Blessed are the cheesemakers",0,"   ", 0
-  defb "4. ", TAB, 20, INK, 5, "I fart in your general direction", 0
-  defb "5. ", TAB, 20, INK, 5, "She's a witch!",0,"                 ", 0
-  defb "4. ", TAB, 20, INK, 5, "How shall we f**k off, O Lord?",0," ",0
-  defb "5. ", TAB, 20, INK, 5, "We have no shrubberies here",0,"    ", 0
-  defb "4. ", TAB, 20, INK, 5, "The Castle of Aaarrrrggh",0,"       ", 0
-  defb "5. ", TAB, 20, INK, 5, "He's a very naughty boy",0,"        ", 0
+  defb "1. ", TAB, 20, INK, 5, "It's just a flesh wound",0,"        ", 0
+  defb "2. ", TAB, 20, INK, 5, "I'm Brian and so's my wife",0,"     ", 0
+  defb "3. ", TAB, 20, INK, 5, "This is an ex-parrot",0,"           ", 0
+  defb "4. ", TAB, 20, INK, 5, "Blessed are the cheesemakers",0,"   ", 0
+  defb "5. ", TAB, 20, INK, 5, "I fart in your general direction", 0
+  defb "6. ", TAB, 20, INK, 5, "She's a witch!",0,"                 ", 0
+  defb "7. ", TAB, 20, INK, 5, "How shall we f**k off, O Lord?",0," ", 0
+  defb "8. ", TAB, 20, INK, 5, "We have no shrubberies here",0,"    ", 0
+  defb "9. ", TAB, 20, INK, 5, "The Castle of Aaarrrrggh",0,"       ", 0
+  defb "10.", TAB, 20, INK, 5, "He's a very naughty boy",0,"        ", 0
 
 
 high_score_table
