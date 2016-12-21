@@ -800,8 +800,7 @@ str_main_menu_pun_9
 
 str_scrolly_message
 
-  defb "Manic Mower...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
-  ;defb "Includes Vortex Tracker II PT3 playback by Sergey Bulba...    "
+  defb "Manic Mower v1.1...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
   defb "Mow the lawns as quickly as possible while avoiding the walls, garden gnomes, plants and especially "
   defb "Rover the dog and his fellow mutts...    Pick up fuel cans to avoid running out of fuel...    "
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...    "

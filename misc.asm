@@ -130,13 +130,21 @@ controls_cursor
   defb "76580"
 
 ;
+; Clears the control bitmap
+;
+clear_controls
+
+  xor a
+  ld (v_controlbits), a
+  ret
+
+
+;
 ; Reads the keyboard (or Kempston joystick) and sets the
 ; control bitmap appropriately
 ;
 read_controls
 
-  xor a
-  ld (v_controlbits), a
 
   ld a, (v_control_method)
   cp 3
@@ -146,6 +154,7 @@ read_controls_kempston
 
   in a, (0x1f)
   and 0x1f
+  ret z
   ld (v_controlbits), a
   ret
 
@@ -161,7 +170,8 @@ read_controls_keyboard
   cp b
   jr nz, read_controls_up
 
-  set 4, (hl)
+  ld a, %00010000
+  ld (hl), a
   ret
 
 read_controls_up
@@ -170,7 +180,8 @@ read_controls_up
   cp b
   jr nz, read_controls_down
 
-  set 3, (hl)
+  ld a, %00001000
+  ld (hl), a
   ret
 
 read_controls_down
@@ -179,7 +190,8 @@ read_controls_down
   cp b
   jr nz, read_controls_left
 
-  set 2, (hl)
+  ld a, %00000100
+  ld (hl), a
   ret
 
 read_controls_left
@@ -188,7 +200,8 @@ read_controls_left
   cp b
   jr nz, read_controls_right
 
-  set 1, (hl)
+  ld a, %00000010
+  ld (hl), a
   ret
 
 read_controls_right
@@ -197,7 +210,8 @@ read_controls_right
   cp b
   ret nz
 
-  set 0, (hl)
+  ld a, %00000001
+  ld (hl), a
   ret
 
 ;

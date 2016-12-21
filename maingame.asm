@@ -126,6 +126,10 @@ check_mower_moving
 
 check_dog_collision
 
+; Clear control bitmap at this point
+
+  call clear_controls
+
 ; Store mower XY coords in DE
 
   ld a, (v_mowerx)
@@ -377,6 +381,17 @@ mower_move_4
 
   xor a
   out (0xfe), a
+
+; Allow input when mower/dog is mid-move
+
+  push af
+  push bc
+  push hl
+  call read_controls
+  pop hl
+  pop bc
+  pop af
+  
   call end_frame
   djnz mower_move
 
@@ -921,6 +936,7 @@ move_pause_attrs_2
 
   call scan_keys
   jr nc, pause_game_2
+  call clear_controls
   call read_controls
   bit 4, (hl)
   jr nz, pause_game_2
