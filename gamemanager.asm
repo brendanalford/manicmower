@@ -39,6 +39,7 @@ gamemaanger_prep_level
   ld hl, str_level_begin
   ld a, STATUS_LEVEL_START
   call display_status_message
+  call clear_controls
 
   call main_loop
   call fade_out_attrs
@@ -518,7 +519,7 @@ display_and_subtract_cost
   jr z, display_and_subtract_cost_2
 
   ld hl, 0
-  
+
 display_and_subtract_cost_2
 
 ; Save value and print it
