@@ -800,15 +800,14 @@ str_main_menu_pun_9
 
 str_scrolly_message
 
-  defb "Manic Mower v1.1...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
+  defb "Manic Mower v1.2...    Written by Brendan Alford...    Music kindly donated by Gasman...    "
   defb "Mow the lawns as quickly as possible while avoiding the walls, garden gnomes, plants and especially "
   defb "Rover the dog and his fellow mutts...    Pick up fuel cans to avoid running out of fuel...    "
   defb "Hitting obstacles will damage your mower causing it to burst into flames eventually...    "
   defb "Damage to your mower will need to be repaired before tackling the next lawn...        "
   defb "Based on the crappy original written by myself in 1992 "
   defb "that somehow got published in Sinclair User.  What can I say, standards were "
-  defb "obviously quite low at that stage :)    "
-  defb "Hello to all at S4E and WoS, and the Manic Mower Hardcore Fan Club (shakes head)...     ++++     ", 0xff
+  defb "obviously quite low at that stage :)   ++++     ", 0xff
   defw str_scrolly_message
 
 str_redefine_keys
