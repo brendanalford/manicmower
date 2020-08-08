@@ -444,7 +444,7 @@ prepare_misc
   ld (v_time), a
   ld (v_time + 1), a
 
-  ld a, FUEL_FRAMES
+  ld a, FUELFRAMES
   ld (v_fuel_frame), a
   ld a, TIME_FRAMES
   ld (v_time_frame), a

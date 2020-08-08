@@ -388,7 +388,7 @@ print_nextchar
 
 ;	Check for carriage return
 
-	cp '\n'
+	cp 0x0c
 	jr nz, print_chk_left
 	call newline
 	jr print_nextchar
@@ -901,7 +901,7 @@ putchar
 	ld a, (v_screen_attr)
 	ld b, a
 	ld a, (v_attr)
-	cp ATTR_TRANS
+	cp ATTRTRANS
 	jr z, .putchar.end
 
 	ld a, (v_row)
@@ -1062,7 +1062,7 @@ putchar_8
 ;	Ignore if transparent attributes are selected
 
 	ld a, (v_attr)
-	cp ATTR_TRANS
+	cp ATTRTRANS
 	jr z, .putchar_8.end
 	ld (hl), a
 

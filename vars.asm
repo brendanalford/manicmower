@@ -12,10 +12,10 @@
 
 
 	define 	LEVEL_BUFFER_LEN	576
-	define	FUEL_FRAMES				20
+	define	FUELFRAMES				20
 	define	TIME_FRAMES				80
 
-	define 	ATTR_TRANS				0xff
+	define 	ATTRTRANS				0xff
 
 	define 	STATUS_HIT_WALL			0x1
 	define 	STATUS_HIT_GNOME		0x2

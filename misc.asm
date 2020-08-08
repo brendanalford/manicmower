@@ -302,7 +302,7 @@ end_frame
   ld a, ' '
   call putchar_pixel
 
-  ld a, FUEL_FRAMES
+  ld a, FUELFRAMES
 
 frame_halt_2
 
@@ -667,7 +667,7 @@ add_damage_display
   ld (v_row), a
   ld a, 7
   ld (v_column), a
-  ld a, ATTR_TRANS
+  ld a, ATTRTRANS
   ld (v_attr), a
 
 add_damage_loop
@@ -1044,7 +1044,7 @@ move_scrolly
 
 move_scrolly_prchar
 
-  ld a, ATTR_TRANS
+  ld a, ATTRTRANS
   ld (v_attr), a
   ld a, b
   push af

@@ -265,7 +265,7 @@ check_fuel_collision
   ld (hl), a
   ld a, 80
   ld (v_fuel), a
-  ld a, FUEL_FRAMES
+  ld a, FUELFRAMES
   ld (v_fuel_frame), a
   ld hl, str_fuel_bar
   call print
@@ -293,7 +293,7 @@ check_gnome_collision
   ld (v_row), a
   ld a, l
   ld (v_column), a
-  ld a, ATTR_TRANS
+  ld a, ATTRTRANS
   ld (v_attr), a
   ld a,'i'
   call putchar_8
@@ -454,7 +454,7 @@ main_game_over_damage
   ld a, STATUS_GAME_OVER
   call display_status_message
 
-  ld a, ATTR_TRANS
+  ld a, ATTRTRANS
   ld (v_attr), a
   ld a, (v_mowerx)
   ld (v_column), a
